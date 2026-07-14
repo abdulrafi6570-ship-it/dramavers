@@ -1,0 +1,177 @@
+.folder {
+  transition: all 0.2s ease-in;
+  cursor: pointer;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--folder-color, #a855f7) 55%, transparent));
+}
+
+.folder:not(.open):hover {
+  transform: translateY(-8px);
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--folder-color, #a855f7) 80%, transparent));
+}
+
+.folder:not(.open):hover .paper {
+  transform: translate(-50%, 0%);
+}
+
+.folder:not(.open):hover .folder__front {
+  transform: skew(15deg) scaleY(0.6);
+}
+
+.folder:not(.open):hover .right {
+  transform: skew(-15deg) scaleY(0.6);
+}
+
+.folder.open {
+  transform: translateY(-8px);
+  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--folder-color, #a855f7) 90%, transparent));
+}
+
+.folder.open .paper:nth-child(1) {
+  transform: translate(calc(-120% + var(--magnet-x, 0px)), calc(-70% + var(--magnet-y, 0px))) rotateZ(-15deg);
+}
+
+.folder.open .paper:nth-child(1):hover {
+  transform: translate(calc(-120% + var(--magnet-x, 0px)), calc(-70% + var(--magnet-y, 0px))) rotateZ(-15deg) scale(1.1);
+}
+
+.folder.open .paper:nth-child(2) {
+  transform: translate(calc(10% + var(--magnet-x, 0px)), calc(-70% + var(--magnet-y, 0px))) rotateZ(15deg);
+  height: 80%;
+}
+
+.folder.open .paper:nth-child(2):hover {
+  transform: translate(calc(10% + var(--magnet-x, 0px)), calc(-70% + var(--magnet-y, 0px))) rotateZ(15deg) scale(1.1);
+}
+
+.folder.open .paper:nth-child(3) {
+  transform: translate(calc(-50% + var(--magnet-x, 0px)), calc(-100% + var(--magnet-y, 0px))) rotateZ(5deg);
+  height: 80%;
+}
+
+.folder.open .paper:nth-child(3):hover {
+  transform: translate(calc(-50% + var(--magnet-x, 0px)), calc(-100% + var(--magnet-y, 0px))) rotateZ(5deg) scale(1.1);
+}
+
+.folder.open .folder__front {
+  transform: skew(15deg) scaleY(0.6);
+}
+
+.folder.open .right {
+  transform: skew(-15deg) scaleY(0.6);
+}
+
+/* ── Back of folder ── */
+.folder__back {
+  position: relative;
+  width: 100px;
+  height: 80px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--folder-back-color, #7c3aed) 55%, white) 0%,
+    color-mix(in srgb, var(--folder-back-color, #7c3aed) 60%, transparent) 60%,
+    color-mix(in srgb, var(--folder-back-color, #7c3aed) 40%, black) 100%
+  );
+  border-radius: 0px 10px 10px 10px;
+  border: 1px solid color-mix(in srgb, var(--folder-back-color, #7c3aed) 70%, white);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 4px 16px color-mix(in srgb, var(--folder-back-color, #7c3aed) 40%, transparent);
+}
+
+.folder__back::after {
+  position: absolute;
+  z-index: 0;
+  bottom: 98%;
+  left: 0;
+  content: '';
+  width: 30px;
+  height: 10px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--folder-back-color, #7c3aed) 60%, white) 0%,
+    color-mix(in srgb, var(--folder-back-color, #7c3aed) 50%, transparent) 100%
+  );
+  border-radius: 5px 5px 0 0;
+  border: 1px solid color-mix(in srgb, var(--folder-back-color, #7c3aed) 70%, white);
+  border-bottom: none;
+}
+
+/* ── Paper slips ── */
+.paper {
+  position: absolute;
+  z-index: 2;
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-50%, 10%);
+  width: 70%;
+  height: 80%;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.28) 45%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.60);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.80),
+    0 2px 8px rgba(0, 0, 0, 0.30);
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.paper:nth-child(2) {
+  background: linear-gradient(160deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.20) 100%);
+  border-color: rgba(255, 255, 255, 0.45);
+  width: 80%;
+  height: 70%;
+}
+
+.paper:nth-child(3) {
+  background: linear-gradient(160deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 100%);
+  border-color: rgba(255, 255, 255, 0.32);
+  width: 90%;
+  height: 60%;
+}
+
+/* ── Front face of folder ── */
+.folder__front {
+  position: absolute;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--folder-color, #a855f7) 55%, white) 0%,
+    color-mix(in srgb, var(--folder-color, #a855f7) 65%, transparent) 50%,
+    color-mix(in srgb, var(--folder-color, #a855f7) 45%, black) 100%
+  );
+  border-radius: 5px 10px 10px 10px;
+  border: 1px solid color-mix(in srgb, var(--folder-color, #a855f7) 70%, white);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    inset 1px 0 0 rgba(255, 255, 255, 0.18),
+    0 6px 20px color-mix(in srgb, var(--folder-color, #a855f7) 50%, transparent);
+  transform-origin: bottom;
+  transition: all 0.3s ease-in-out;
+}
+
+/* top-right glass sheen on front */
+.folder__front::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}

@@ -1,0 +1,44 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import uploadsRouter from "./uploads";
+import authRouter from "./auth";
+import dramasRouter from "./dramas";
+import actorsRouter from "./actors";
+import videosRouter from "./videos";
+import favoritesRouter from "./favorites";
+import bookmarksRouter from "./bookmarks";
+import downloadsRouter from "./downloads";
+import commentsRouter from "./comments";
+import requestsRouter from "./requests";
+import homeRouter from "./home";
+import adminRouter from "./admin";
+import adsRouter from "./ads";
+import settingsRouter from "./settings";
+import followsRouter from "./follows";
+import usersRouter from "./users";
+import feedbackRouter from "./feedback";
+import chatRouter from "./chat";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(uploadsRouter);
+router.use(authRouter);
+router.use(dramasRouter);
+router.use(actorsRouter);
+router.use(videosRouter);
+router.use(favoritesRouter);
+router.use(bookmarksRouter);
+router.use(downloadsRouter);
+router.use(commentsRouter);
+router.use(requestsRouter);
+router.use(homeRouter);
+router.use(adminRouter);
+router.use(adsRouter);
+router.use(settingsRouter);
+router.use(followsRouter);
+router.use(usersRouter);
+router.use(feedbackRouter);
+router.use(chatRouter);
+
+export default router;

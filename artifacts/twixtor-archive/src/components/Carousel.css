@@ -1,0 +1,158 @@
+.crsl-container {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 12px;
+  --outer-r: 20px;
+  --p-distance: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.crsl-track {
+  display: flex;
+}
+
+.crsl-item {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: calc(var(--outer-r) - var(--p-distance));
+  background-color: rgba(10, 8, 18, 0.9);
+  overflow: hidden;
+  cursor: grab;
+}
+
+.crsl-item:active {
+  cursor: grabbing;
+}
+
+.crsl-item.round {
+  background-color: rgba(10, 8, 18, 0.9);
+  position: relative;
+  bottom: 0.1em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.crsl-item-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.crsl-cover-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
+.crsl-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+}
+
+.crsl-cover-content {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+}
+
+.crsl-item-header {
+  margin-bottom: 12px;
+  padding: 16px 16px 0;
+}
+
+.crsl-item-header.round {
+  padding: 0;
+  margin: 0;
+}
+
+.crsl-indicators-container.round {
+  position: absolute;
+  z-index: 2;
+  bottom: 3em;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.crsl-icon-container {
+  display: flex;
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.crsl-item-content {
+  padding: 16px;
+  padding-top: 0;
+}
+
+.crsl-item-title {
+  margin-bottom: 4px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.crsl-item-description {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.4;
+}
+
+.crsl-indicators-container {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.crsl-indicators {
+  margin-top: 10px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.crsl-indicator {
+  height: 5px;
+  width: 5px;
+  border: none;
+  padding: 0;
+  appearance: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 150ms, transform 150ms;
+}
+
+.crsl-indicator:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.crsl-indicator.active {
+  background-color: #fff;
+  transform: scale(1.3);
+}
+
+.crsl-indicator.inactive {
+  background-color: rgba(255, 255, 255, 0.25);
+}

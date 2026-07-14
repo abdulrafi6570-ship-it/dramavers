@@ -1,0 +1,3 @@
+- [Supabase auth integration](supabase-auth.md) — Supabase replaces local JWT; token stored in localStorage as `twixtor_token`, backend verifies via `supabaseAdmin.auth.getUser`
+- [Twixtor Archive project](project-overview.md) — drama streaming platform; frontend `artifacts/twixtor-archive` at "/"; admin login rapp/rapp123 (seeded via index.ts defaults)
+- [Schema-route mismatches fixed](schema-fixes.md) — api-zod had wrong schemas for CreateRequestBody and CreateAccessCodeBody; ratings table changed from smooth/quality/useForEdit to single rating column
