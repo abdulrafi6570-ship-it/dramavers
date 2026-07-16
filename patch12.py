@@ -9,7 +9,6 @@ def replace_once(path, old, new, label):
         f.write(content)
     print(f"[OK] {label}")
 
-# Tambah isPrivate ke SELECT di getUserWithCounts
 replace_once(
     "artifacts/api-server/src/routes/auth.ts",
     "    bio: usersTable.bio,\n    createdAt: usersTable.createdAt,",
@@ -17,7 +16,6 @@ replace_once(
     "tambah isPrivate ke SELECT getUserWithCounts",
 )
 
-# Tambah isPrivate ke return object getUserWithCounts
 replace_once(
     "artifacts/api-server/src/routes/auth.ts",
     "    bio: dbUser.bio ?? null,\n    createdAt: dbUser.createdAt.toISOString(),\n    followerCount: Number(followerCount),\n    followingCount: Number(followingCount),",
