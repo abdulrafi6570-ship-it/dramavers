@@ -119,8 +119,32 @@ export default function Search() {
               </section>
             )}
 
+            {(data as any).users && (data as any).users.length > 0 && (
+              <section>
+                <h2 className="font-heading text-base mb-4 text-white/60 uppercase tracking-widest">Akun</h2>
+                <div className="space-y-2">
+                  {(data as any).users.map((u: any) => (
+                    <Link
+                      key={u.id}
+                      href={`/users/${u.id}`}
+                      className="flex items-center gap-3 p-3 rounded-lg glass-panel border-white/5 hover:border-primary/50 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-sm font-bold text-white shrink-0">
+                        {u.photoUrl
+                          ? <img src={u.photoUrl} className="w-full h-full object-cover" alt={u.username} />
+                          : u.username.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-sm font-medium text-white/90">@{u.username}</span>
+                      {u.verified && <span className="text-xs text-white/50">✓</span>}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {(!data.dramas || data.dramas.length === 0) &&
-              (!data.actors || data.actors.length === 0) && (
+              (!data.actors || data.actors.length === 0) &&
+              (!(data as any).users || (data as any).users.length === 0) && (
                 <div className="text-center py-16">
                   <p className="text-white/30 text-base mb-1">Tidak ada hasil untuk &ldquo;{query}&rdquo;</p>
                   <p className="text-white/20 text-sm">Coba kata kunci yang berbeda</p>

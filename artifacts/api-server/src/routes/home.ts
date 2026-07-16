@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, videosTable, dramasTable, actorsTable } from "@workspace/db";
+import { db, videosTable, dramasTable, actorsTable, usersTable } from "@workspace/db";
 import { eq, ilike, desc, count } from "drizzle-orm";
 
 const router: IRouter = Router();
@@ -77,9 +77,10 @@ router.get("/search", async (req, res): Promise<void> => {
     return;
   }
 
-  const [dramas, actors] = await Promise.all([
+  const [dramas, actors, users] = await Promise.all([
     db.select().from(dramasTable).where(ilike(dramasTable.name, `%${q}%`)).limit(8),
     db.select().from(actorsTable).where(ilike(actorsTable.name, `%${q}%`)).limit(8),
+    db.select().from(usersTable).where(ilike(usersTable.username, `%${q}%`)).limit(8),
   ]);
 
   res.json({
@@ -88,6 +89,9 @@ router.get("/search", async (req, res): Promise<void> => {
       id: a.id, name: a.name, photoUrl: a.photoUrl ?? null,
       type: a.type ?? "drama", bio: a.bio ?? null, videoCount: 0,
       createdAt: a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
+    })),
+    users: users.map((u) => ({
+      id: u.id, username: u.username, photoUrl: u.photoUrl ?? null, verified: u.verified,
     })),
     videos: [],
   });
