@@ -63,6 +63,8 @@ export default function Profile() {
 
   async function handlePrivacyToggle() {
     const newVal = !(u.isPrivate ?? false);
+    // Update cache dulu supaya toggle langsung berubah
+    qc.setQueryData(getGetMeQueryKey(), (old: any) => old ? { ...old, isPrivate: newVal } : old);
     try {
       const res = await fetch("/api/auth/profile", {
         method: "PATCH",
@@ -73,9 +75,10 @@ export default function Profile() {
         body: JSON.stringify({ isPrivate: newVal }),
       });
       if (!res.ok) throw new Error();
-      qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
       toast({ title: newVal ? "Akun diset privat 🔒" : "Akun diset publik 🌐" });
     } catch {
+      // Revert kalau gagal
+      qc.setQueryData(getGetMeQueryKey(), (old: any) => old ? { ...old, isPrivate: !newVal } : old);
       toast({ title: "Gagal update privasi", variant: "destructive" });
     }
   }
