@@ -152,12 +152,14 @@ router.patch("/auth/profile", requireAuth, async (req, res): Promise<void> => {
   const UpdateProfileBody = z.object({
     bio: z.string().max(300).optional(),
     photoUrl: z.string().optional(),
+    isPrivate: z.boolean().optional(),
   });
   const parsed = UpdateProfileBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const updates: Record<string, string | null> = {};
+  const updates: Record<string, string | null | boolean> = {};
   if (parsed.data.bio !== undefined) updates.bio = parsed.data.bio || null;
   if (parsed.data.photoUrl !== undefined) updates.photoUrl = parsed.data.photoUrl || null;
+  if (parsed.data.isPrivate !== undefined) updates.isPrivate = parsed.data.isPrivate;
   await db.update(usersTable).set(updates as any).where(eq(usersTable.id, req.user!.id));
   const userWithCounts = await getUserWithCounts(req.user!.id);
   res.json(userWithCounts);

@@ -13,6 +13,7 @@ export const usersTable = pgTable("users", {
   verified: boolean("verified").notNull().default(false),
   photoUrl: text("photo_url"),
   bio: text("bio"),
+  isPrivate: boolean("is_private").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

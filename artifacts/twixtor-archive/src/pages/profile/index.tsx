@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import ProfileCard from "@/components/ProfileCard";
 import FallingText from "@/components/FallingText";
 import { useState, useRef } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, Lock, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey } from "@workspace/api-client-react";
@@ -58,6 +58,25 @@ export default function Profile() {
       toast({ title: "Gagal upload foto", variant: "destructive" });
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handlePrivacyToggle() {
+    const newVal = !(u.isPrivate ?? false);
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("twixtor_token")}`,
+        },
+        body: JSON.stringify({ isPrivate: newVal }),
+      });
+      if (!res.ok) throw new Error();
+      qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
+      toast({ title: newVal ? "Akun diset privat 🔒" : "Akun diset publik 🌐" });
+    } catch {
+      toast({ title: "Gagal update privasi", variant: "destructive" });
     }
   }
 
@@ -154,6 +173,26 @@ export default function Profile() {
                   ADMIN
                 </span>
               )}
+            </div>
+
+            {/* Toggle Privasi */}
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <button
+                onClick={handlePrivacyToggle}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  (u.isPrivate ?? false)
+                    ? "bg-white/10 border-white/20 text-white/80 hover:bg-white/15"
+                    : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
+                }`}
+              >
+                {(u.isPrivate ?? false)
+                  ? <><Lock className="h-3 w-3" /> Akun Privat</>
+                  : <><Globe className="h-3 w-3" /> Akun Publik</>
+                }
+              </button>
+              <span className="text-[10px] text-white/25">
+                {(u.isPrivate ?? false) ? "Hanya teman yang bisa lihat favorit" : "Siapapun bisa lihat favorit kamu"}
+              </span>
             </div>
 
             {/* Stats */}
