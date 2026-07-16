@@ -48,7 +48,7 @@ export function FileUploader({
 
     try {
       const token = localStorage.getItem("twixtor_token");
-      const endpoint = toMp3 ? "/api/uploads/mp3" : "/api/uploads";
+      const endpoint = toMp3 ? "https://dramavers-production.up.railway.app/api/uploads/mp3" : "https://dramavers-production.up.railway.app/api/uploads";
 
       const formData = new FormData();
       formData.append("file", file);
