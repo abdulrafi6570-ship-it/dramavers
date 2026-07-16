@@ -24,18 +24,42 @@ export default function UserProfile() {
   const { toast } = useToast();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (isRetry = false) => {
+    if (!isRetry) {
+      setIsLoading(true);
+      setNotFound(false);
+      setLoadError(false);
+    }
     try {
       const res = await fetch(`/api/users/${id}`, {
         headers: user ? { Authorization: `Bearer ${localStorage.getItem("twixtor_token")}` } : {},
       });
-      if (!res.ok) throw new Error("User not found");
-      setProfile(await res.json());
+
+      if (res.status === 404) {
+        setProfile(null);
+        setNotFound(true);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+
+      const json = await res.json();
+      setProfile(json);
+      setNotFound(false);
+      setLoadError(false);
+      setIsLoading(false);
     } catch {
+      if (!isRetry) {
+        setTimeout(() => fetchProfile(true), 1200);
+        return;
+      }
       setProfile(null);
-    } finally {
+      setLoadError(true);
       setIsLoading(false);
     }
   };
@@ -82,7 +106,20 @@ export default function UserProfile() {
             <ArrowLeft className="h-4 w-4" /> Kembali
           </Link>
           <div className="glass-panel rounded-2xl p-12 text-center border border-white/8">
-            <p className="text-white/40">Pengguna tidak ditemukan</p>
+            {notFound ? (
+              <p className="text-white/40">Pengguna tidak ditemukan</p>
+            ) : (
+              <>
+                <p className="text-white/40 mb-4">Gagal memuat profil. Coba lagi sebentar.</p>
+                <Button
+                  variant="outline"
+                  className="border-white/15 text-white/60 hover:text-white hover:bg-white/8"
+                  onClick={() => fetchProfile()}
+                >
+                  Coba Lagi
+                </Button>
+              </>
+            )}
           </div>
         </main>
       </div>
