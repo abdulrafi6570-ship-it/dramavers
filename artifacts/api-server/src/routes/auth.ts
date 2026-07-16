@@ -1,7 +1,5 @@
 import { Router, type IRouter } from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 import { randomUUID } from "crypto";
 import { db, usersTable, accessCodesTable, userFollowsTable } from "@workspace/db";
 import { eq, and, or, gt, count } from "drizzle-orm";
@@ -9,18 +7,12 @@ import { requireAuth } from "../middlewares/auth";
 import { RegisterBody, LoginBody, VerifyAccessCodeBody } from "@workspace/api-zod";
 import { z } from "zod";
 import { supabaseAdmin, supabaseAnon } from "../lib/supabase";
+import { assertR2Configured, uploadToR2, buildR2Key } from "../lib/r2";
 
 const router: IRouter = Router();
 
-const UPLOADS_DIR = path.resolve(process.cwd(), "../../uploads");
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
-const avatarStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
-  filename: (_req, _file, cb) => cb(null, `avatar_${randomUUID()}.jpg`),
-});
 const avatarUpload = multer({
-  storage: avatarStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith("image/")) cb(null, true);
@@ -173,7 +165,21 @@ router.patch("/auth/profile", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/auth/upload-photo", requireAuth, avatarUpload.single("photo"), async (req, res): Promise<void> => {
   if (!req.file) { res.status(400).json({ error: "No file uploaded" }); return; }
-  const photoUrl = `/api/uploads/${req.file.filename}`;
+  try {
+    assertR2Configured();
+  } catch (err: any) {
+    res.status(503).json({ error: `Storage not configured: ${err.message}` });
+    return;
+  }
+  let photoUrl: string;
+  try {
+    const r2Key = buildR2Key("images", `avatar_${randomUUID()}.jpg`);
+    photoUrl = await uploadToR2(r2Key, req.file.buffer, req.file.mimetype);
+  } catch (err: any) {
+    req.log.error({ err }, "[UploadPhoto] R2 upload failed");
+    res.status(502).json({ error: "Upload foto ke storage gagal" });
+    return;
+  }
   await db.update(usersTable).set({ photoUrl }).where(eq(usersTable.id, req.user!.id));
   const userWithCounts = await getUserWithCounts(req.user!.id);
   res.json({ photoUrl, user: userWithCounts });

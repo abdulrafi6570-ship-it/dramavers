@@ -11,36 +11,9 @@ import { getGetMeQueryKey } from "@workspace/api-client-react";
 
 const TEAM_PROFILES = [
   {
-    name: "Soo Hyun",
-    title: "Drama Editor",
-    handle: "soohyun",
-    avatarUrl: "/avatars/avatar1_nobg.png",
-    status: "Online",
-    innerGradient: "linear-gradient(145deg, rgba(8,8,18,0.96) 0%, rgba(15,15,30,0.90) 100%)",
-    behindGlowColor: "rgba(200, 220, 255, 0.25)",
-  },
-  {
-    name: "Ji Yeon",
-    title: "Content Curator",
-    handle: "jiyeon",
-    avatarUrl: "/avatars/avatar2_nobg.png",
-    status: "Online",
-    innerGradient: "linear-gradient(145deg, rgba(8,8,18,0.96) 0%, rgba(12,12,24,0.92) 100%)",
-    behindGlowColor: "rgba(220, 200, 255, 0.25)",
-  },
-  {
-    name: "Kang Min",
-    title: "Clip Uploader",
-    handle: "kangmin",
-    avatarUrl: "/avatars/avatar3_nobg.png",
-    status: "Offline",
-    innerGradient: "linear-gradient(145deg, rgba(6,6,16,0.97) 0%, rgba(14,14,28,0.90) 100%)",
-    behindGlowColor: "rgba(180, 200, 255, 0.2)",
-  },
-  {
-    name: "Yoo Joon",
+    name: "RAPP",
     title: "Archive Manager",
-    handle: "yoojoon",
+    handle: "rapp",
     avatarUrl: "/avatars/avatar4_nobg.png",
     status: "Online",
     innerGradient: "linear-gradient(145deg, rgba(8,8,18,0.96) 0%, rgba(16,16,30,0.88) 100%)",
@@ -233,12 +206,12 @@ export default function Profile() {
         {/* Team ProfileCards */}
         <div className="mb-6">
           <h2 className="font-heading text-lg text-white/80 tracking-widest uppercase text-center mb-2">
-            Tim
+            Pembuat
           </h2>
 
           <div style={{ height: "120px" }} className="mb-8">
             <FallingText
-              text="Para pengelola Twixtor Archive — drama clips slow motion edits curated with love"
+              text="Pengelola Twixtor Archive — drama clips slow motion edits curated with love"
               highlightWords={["Twixtor", "Archive", "drama", "clips", "love"]}
               highlightClass="highlighted"
               trigger="scroll"
