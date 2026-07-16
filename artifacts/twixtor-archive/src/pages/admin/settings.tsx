@@ -17,7 +17,9 @@ export default function AdminSettings() {
   const [bgmEnabled, setBgmEnabled] = useState(false);
 
   const [danaNumber, setDanaNumber] = useState("");
+  const [danaName, setDanaName] = useState("");
   const [gopayNumber, setGopayNumber] = useState("");
+  const [gopayName, setGopayName] = useState("");
   const [saweriaUrl, setSaweriaUrl] = useState("");
   const [donationQrUrl, setDonationQrUrl] = useState("");
 
@@ -40,14 +42,16 @@ export default function AdminSettings() {
   useEffect(() => {
     const load = async () => {
       try {
-        const keys = ["bgm_url", "bgm_enabled", "dana_number", "gopay_number", "saweria_url", "donation_qr_url"];
+        const keys = ["bgm_url", "bgm_enabled", "dana_number", "dana_name", "gopay_number", "gopay_name", "saweria_url", "donation_qr_url"];
         const results = await Promise.all(keys.map((k) => fetch(`/api/settings/${k}`).then((r) => r.json())));
         if (results[0]?.value) setBgmUrl(results[0].value);
         if (results[1]?.value) setBgmEnabled(results[1].value === "true");
         if (results[2]?.value) setDanaNumber(results[2].value);
-        if (results[3]?.value) setGopayNumber(results[3].value);
-        if (results[4]?.value) setSaweriaUrl(results[4].value);
-        if (results[5]?.value) setDonationQrUrl(results[5].value);
+        if (results[3]?.value) setDanaName(results[3].value);
+        if (results[4]?.value) setGopayNumber(results[4].value);
+        if (results[5]?.value) setGopayName(results[5].value);
+        if (results[6]?.value) setSaweriaUrl(results[6].value);
+        if (results[7]?.value) setDonationQrUrl(results[7].value);
       } finally {
         setLoading(false);
       }
@@ -70,7 +74,9 @@ export default function AdminSettings() {
         saveSetting("bgm_url", bgmUrl),
         saveSetting("bgm_enabled", String(bgmEnabled)),
         saveSetting("dana_number", danaNumber),
+        saveSetting("dana_name", danaName),
         saveSetting("gopay_number", gopayNumber),
+        saveSetting("gopay_name", gopayName),
         saveSetting("saweria_url", saweriaUrl),
         saveSetting("donation_qr_url", donationQrUrl),
       ]);
@@ -263,6 +269,12 @@ export default function AdminSettings() {
                     placeholder="08xxxxxxxxxx"
                     className="bg-white/5 border-white/10 text-white h-10 text-sm font-mono"
                   />
+                  <Input
+                    value={danaName}
+                    onChange={(e) => setDanaName(e.target.value)}
+                    placeholder="Atas nama (a/n)"
+                    className="bg-white/5 border-white/10 text-white h-10 text-sm mt-1.5"
+                  />
                 </div>
 
                 <div className="space-y-1.5">
@@ -274,6 +286,12 @@ export default function AdminSettings() {
                     onChange={(e) => setGopayNumber(e.target.value)}
                     placeholder="08xxxxxxxxxx"
                     className="bg-white/5 border-white/10 text-white h-10 text-sm font-mono"
+                  />
+                  <Input
+                    value={gopayName}
+                    onChange={(e) => setGopayName(e.target.value)}
+                    placeholder="Atas nama (a/n)"
+                    className="bg-white/5 border-white/10 text-white h-10 text-sm mt-1.5"
                   />
                 </div>
 

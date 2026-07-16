@@ -5,14 +5,18 @@ import { useToast } from "@/hooks/use-toast";
 
 interface DonationSettings {
   dana_number: string;
+  dana_name: string;
   gopay_number: string;
+  gopay_name: string;
   saweria_url: string;
   donation_qr_url: string;
 }
 
 const DEFAULT_SETTINGS: DonationSettings = {
   dana_number: "",
+  dana_name: "",
   gopay_number: "",
+  gopay_name: "",
   saweria_url: "https://saweria.co/twixtorarchive",
   donation_qr_url: "",
 };
@@ -71,7 +75,7 @@ export function DonationModal({ open, onClose }: DonationModalProps) {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const keys = ["dana_number", "gopay_number", "saweria_url", "donation_qr_url"];
+        const keys = ["dana_number", "dana_name", "gopay_number", "gopay_name", "saweria_url", "donation_qr_url"];
         const results = await Promise.all(
           keys.map((k) => fetch(`/api/settings/${k}`).then((r) => r.json()))
         );
@@ -93,6 +97,7 @@ export function DonationModal({ open, onClose }: DonationModalProps) {
     type: "transfer" | "link";
     account?: string;
     accountLabel?: string;
+    accountName?: string;
     url?: string;
     gradient: string;
     icon: string;
@@ -114,6 +119,7 @@ export function DonationModal({ open, onClose }: DonationModalProps) {
       type: "transfer",
       account: settings.dana_number || "Belum diset",
       accountLabel: "No. HP DANA",
+      accountName: settings.dana_name,
       gradient: "from-blue-500/20 to-cyan-500/20",
       icon: "💙",
       description: "Transfer via DANA",
@@ -124,6 +130,7 @@ export function DonationModal({ open, onClose }: DonationModalProps) {
       type: "transfer",
       account: settings.gopay_number || "Belum diset",
       accountLabel: "No. HP GoPay",
+      accountName: settings.gopay_name,
       gradient: "from-green-500/20 to-emerald-500/20",
       icon: "💚",
       description: "Transfer via GoPay",
@@ -286,7 +293,7 @@ export function DonationModal({ open, onClose }: DonationModalProps) {
                             </motion.button>
                           )}
                         </div>
-                        <p className="text-xs text-white/30 mt-2">a/n Twixtor Archive</p>
+                        <p className="text-xs text-white/30 mt-2">a/n {active.accountName || "Twixtor Archive"}</p>
                       </div>
                     ) : active.id === "qris" ? (
                       <div className={`rounded-xl p-4 bg-gradient-to-br ${active.gradient} border border-white/10`}>
