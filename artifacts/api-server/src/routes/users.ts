@@ -32,10 +32,10 @@ router.get("/users/:id", optionalAuth, async (req, res): Promise<void> => {
   let isFollowedByThem = false;
   if (req.user) {
     const [[iFollow], [theyFollow]] = await Promise.all([
-      db.select({ id: userFollowsTable.id }).from(userFollowsTable).where(
+      db.select({ followerId: userFollowsTable.followerId }).from(userFollowsTable).where(
         and(eq(userFollowsTable.followerId, req.user.id), eq(userFollowsTable.followingId, params.data.id))
       ),
-      db.select({ id: userFollowsTable.id }).from(userFollowsTable).where(
+      db.select({ followerId: userFollowsTable.followerId }).from(userFollowsTable).where(
         and(eq(userFollowsTable.followerId, params.data.id), eq(userFollowsTable.followingId, req.user.id))
       ),
     ]);
@@ -133,10 +133,10 @@ router.get("/users/:id/favorites", optionalAuth, async (req, res): Promise<void>
   if (!allowed) allowed = !targetUser.isPrivate;
   if (!allowed && req.user) {
     const [[iFollow], [theyFollow]] = await Promise.all([
-      db.select({ id: userFollowsTable.id }).from(userFollowsTable).where(
+      db.select({ followerId: userFollowsTable.followerId }).from(userFollowsTable).where(
         and(eq(userFollowsTable.followerId, req.user.id), eq(userFollowsTable.followingId, params.data.id))
       ),
-      db.select({ id: userFollowsTable.id }).from(userFollowsTable).where(
+      db.select({ followerId: userFollowsTable.followerId }).from(userFollowsTable).where(
         and(eq(userFollowsTable.followerId, params.data.id), eq(userFollowsTable.followingId, req.user.id))
       ),
     ]);
