@@ -83,17 +83,25 @@ export default function UserProfile() {
   useEffect(() => { if (profile) fetchFavDramas(profile); }, [profile]);
 
   const handleFollow = async () => {
-    if (!user) return;
+    if (!user || !profile) return;
     setFollowLoading(true);
-    const method = profile?.isFollowing ? "DELETE" : "POST";
+    const wasFollowing = profile.isFollowing;
+    const method = wasFollowing ? "DELETE" : "POST";
     try {
       const res = await fetch(`/api/users/${id}/follow`, {
         method,
         headers: { Authorization: `Bearer ${token()}` },
       });
       if (!res.ok) throw new Error();
-      await fetchProfile();
-      toast({ title: profile?.isFollowing ? "Berhenti mengikuti" : "Mengikuti!" });
+      const newIsFollowing = !wasFollowing;
+      const newIsFriend = newIsFollowing && profile.isFollowedByThem;
+      setProfile((p) => p ? {
+        ...p,
+        isFollowing: newIsFollowing,
+        isFriend: newIsFriend,
+        followerCount: p.followerCount + (newIsFollowing ? 1 : -1),
+      } : p);
+      toast({ title: wasFollowing ? "Berhenti mengikuti" : "Mengikuti!" });
     } catch {
       toast({ title: "Gagal", variant: "destructive" });
     } finally {
