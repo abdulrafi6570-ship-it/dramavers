@@ -1323,6 +1323,17 @@ components:
         totalActors: { type: integer }
         totalVideos: { type: integer }
 
+    SearchUser:
+      type: object
+      required: [id, username]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        photoUrl:
+          type: string
+          nullable: true
+        verified: { type: boolean }
+
     SearchResults:
       type: object
       properties:
@@ -1338,6 +1349,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Video"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchUser"
 
     AdminStats:
       type: object

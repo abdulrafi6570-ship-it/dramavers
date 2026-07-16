@@ -119,11 +119,11 @@ export default function Search() {
               </section>
             )}
 
-            {(data as any).users && (data as any).users.length > 0 && (
+            {data.users && data.users.length > 0 && (
               <section>
                 <h2 className="font-heading text-base mb-4 text-white/60 uppercase tracking-widest">Akun</h2>
                 <div className="space-y-2">
-                  {(data as any).users.map((u: any) => (
+                  {data.users.map((u) => (
                     <Link
                       key={u.id}
                       href={`/users/${u.id}`}
@@ -144,7 +144,7 @@ export default function Search() {
 
             {(!data.dramas || data.dramas.length === 0) &&
               (!data.actors || data.actors.length === 0) &&
-              (!(data as any).users || (data as any).users.length === 0) && (
+              (!data.users || data.users.length === 0) && (
                 <div className="text-center py-16">
                   <p className="text-white/30 text-base mb-1">Tidak ada hasil untuk &ldquo;{query}&rdquo;</p>
                   <p className="text-white/20 text-sm">Coba kata kunci yang berbeda</p>

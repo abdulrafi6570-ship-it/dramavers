@@ -375,10 +375,19 @@ export interface HomeData {
   stats?: HomeStats;
 }
 
+export interface SearchUser {
+  id: number;
+  username: string;
+  /** @nullable */
+  photoUrl?: string | null;
+  verified?: boolean;
+}
+
 export interface SearchResults {
   dramas?: Drama[];
   actors?: Actor[];
   videos?: Video[];
+  users?: SearchUser[];
 }
 
 export interface AdminStats {
