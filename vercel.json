@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/twixtor-archive run build",
   "outputDirectory": "artifacts/twixtor-archive/dist/public",
   "framework": null,
