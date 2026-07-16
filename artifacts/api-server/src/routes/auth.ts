@@ -34,6 +34,7 @@ async function getUserWithCounts(userId: number) {
     verified: dbUser.verified,
     photoUrl: dbUser.photoUrl ?? null,
     bio: dbUser.bio ?? null,
+    isPrivate: dbUser.isPrivate ?? false,
     createdAt: dbUser.createdAt.toISOString(),
     followerCount: Number(followerCount),
     followingCount: Number(followingCount),
