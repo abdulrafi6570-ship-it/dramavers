@@ -112,7 +112,7 @@ export default function ChatThread() {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto space-y-2 pb-4">
+            <div className="flex-1 overflow-y-auto space-y-2 pb-36">
               {messages.map((m) => {
                 const mine = user ? String(m.senderId) === String(user.id) : m.isMine;
                 return (
