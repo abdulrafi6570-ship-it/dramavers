@@ -3,9 +3,11 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import r2proxyRouter from "./routes/r2proxy";
 
 const app: Express = express();
 
+app.use("/r2proxy", r2proxyRouter);
 app.use(
   pinoHttp({
     logger,
