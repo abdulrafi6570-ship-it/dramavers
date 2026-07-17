@@ -39,7 +39,7 @@ router.get("/messages/conversations", requireAuth, async (req, res): Promise<voi
     ORDER BY created_at DESC
   `);
 
-  const partnerIds = (rows as any).map((r: any) => Number(r.partner_id));
+  const partnerIds = ((rows as any).rows as any[]).map((r: any) => Number(r.partner_id));
   const partners = partnerIds.length
     ? await db.select().from(usersTable).where(sql`${usersTable.id} IN (${sql.join(partnerIds.map((id: number) => sql`${id}`), sql`, `)})`)
     : [];
@@ -50,10 +50,10 @@ router.get("/messages/conversations", requireAuth, async (req, res): Promise<voi
     WHERE recipient_id = ${me} AND read = false
     GROUP BY sender_id
   `);
-  const unreadMap = new Map((unreadCounts as any).map((r: any) => [Number(r.sender_id), Number(r.cnt)]));
+  const unreadMap = new Map(((unreadCounts as any).rows as any[]).map((r: any) => [Number(r.sender_id), Number(r.cnt)]));
 
   res.json(
-    (rows as any).map((r: any) => {
+    ((rows as any).rows as any[]).map((r: any) => {
       const partner = partnerMap.get(Number(r.partner_id));
       return {
         userId: Number(r.partner_id),
