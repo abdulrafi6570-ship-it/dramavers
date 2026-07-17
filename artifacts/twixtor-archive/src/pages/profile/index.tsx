@@ -28,6 +28,7 @@ export default function Profile() {
   const qc = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [avatarBroken, setAvatarBroken] = useState(false);
   const [editingBio, setEditingBio] = useState(false);
   const [bioText, setBioText] = useState((user as any)?.bio ?? "");
 
@@ -117,18 +118,17 @@ export default function Profile() {
           {/* Avatar with upload */}
           <div className="relative z-10 flex-shrink-0">
             <div className="w-28 h-28 rounded-full glass-panel-strong border border-white/15 flex items-center justify-center text-4xl font-bold text-white overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.06)]">
-              {u.photoUrl
-              ? (
-                <img
-                  src={u.photoUrl}
-                  alt={user.username}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                />
-              )
-              : null
-            }
-            {!u.photoUrl && <span>{user.username.charAt(0).toUpperCase()}</span>}
+              {u.photoUrl && !avatarBroken
+                ? (
+                  <img
+                    src={u.photoUrl}
+                    alt={user.username}
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarBroken(true)}
+                  />
+                )
+                : user.username.charAt(0).toUpperCase()
+              }
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
