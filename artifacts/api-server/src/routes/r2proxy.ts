@@ -15,8 +15,8 @@ function getClient(): S3Client {
   });
 }
 
-router.get("/*", async (req: Request, res: Response): Promise<void> => {
-  const key = (req.params as Record<string, string>)[0];
+router.get("*", async (req: Request, res: Response): Promise<void> => {
+  const key = req.path.replace(/^\//, "");
   if (!key) { res.status(400).json({ error: "No key" }); return; }
   try {
     const cmd = new GetObjectCommand({
