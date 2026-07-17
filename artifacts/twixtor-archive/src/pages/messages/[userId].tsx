@@ -89,9 +89,9 @@ export default function ChatThread() {
       <Navbar />
       <div className="max-w-2xl w-full mx-auto px-4 flex-1 flex flex-col overflow-hidden min-h-0">
         <div className="flex items-center gap-3 py-3 border-b border-white/10 bg-background shrink-0">
-          <Link href="/messages" className="text-white/60 hover:text-white">
+          <button onClick={() => window.history.back()} className="text-white/60 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
-          </Link>
+          </button>
           <div className="w-9 h-9 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-sm font-bold text-white shrink-0">
             {partnerPhoto
               ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName}
