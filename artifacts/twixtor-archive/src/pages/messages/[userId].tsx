@@ -114,7 +114,7 @@ export default function ChatThread() {
           <>
             <div className="flex-1 overflow-y-auto space-y-2 pb-4">
               {messages.map((m) => {
-                const mine = user ? m.senderId === user.id : m.isMine;
+                const mine = m.isMine;
                 return (
                   <div key={m.id} className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}>
                     {!mine && (
@@ -149,12 +149,13 @@ export default function ChatThread() {
                 className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/30 px-2"
               />
               <button
-                onClick={handleSend}
-                disabled={sending || !input.trim()}
-                className="w-9 h-9 rounded-full bg-primary flex items-center justify-center disabled:opacity-40 shrink-0"
-              >
-                <Send className="w-4 h-4 text-white" />
-              </button>
+              onClick={handleSend}
+              disabled={sending || !input.trim()}
+              style={{ background: "var(--color-primary, #7c3aed)" }}
+              className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0 text-white"
+            >
+              <Send className="w-5 h-5" />
+            </button>
             </div>
           </>
         )}
