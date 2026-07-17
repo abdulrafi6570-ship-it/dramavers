@@ -43,18 +43,18 @@ router.get("/messages/conversations", requireAuth, async (req, res): Promise<voi
   const partners = partnerIds.length
     ? await db.select().from(usersTable).where(sql`${usersTable.id} IN (${sql.join(partnerIds.map((id: number) => sql`${id}`), sql`, `)})`)
     : [];
-  const partnerMap = new Map(partners.map((p) => [p.id, p]));
+  const partnerMap = new Map(partners.map((p) => [String(p.id), p]));
 
   const unreadCounts = await db.execute(sql`
     SELECT sender_id, COUNT(*)::int AS cnt FROM private_messages
     WHERE recipient_id = ${me} AND read = false
     GROUP BY sender_id
   `);
-  const unreadMap = new Map(((unreadCounts as any).rows as any[]).map((r: any) => [Number(r.sender_id), Number(r.cnt)]));
+  const unreadMap = new Map(((unreadCounts as any).rows as any[]).map((r: any) => [String(r.sender_id), Number(r.cnt)]));
 
   res.json(
     ((rows as any).rows as any[]).map((r: any) => {
-      const partner = partnerMap.get(Number(r.partner_id));
+      const partner = partnerMap.get(String(r.partner_id));
       return {
         userId: Number(r.partner_id),
         username: partner?.username ?? "Pengguna",
@@ -62,7 +62,7 @@ router.get("/messages/conversations", requireAuth, async (req, res): Promise<voi
         lastMessage: r.message,
         lastMessageAt: new Date(r.created_at).toISOString(),
         isMine: Number(r.sender_id) === me,
-        unreadCount: unreadMap.get(Number(r.partner_id)) ?? 0,
+        unreadCount: unreadMap.get(String(r.partner_id)) ?? 0,
       };
     })
   );
