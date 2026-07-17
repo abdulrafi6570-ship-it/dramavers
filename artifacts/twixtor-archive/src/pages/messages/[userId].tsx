@@ -24,6 +24,11 @@ export default function ChatThread() {
   const [blocked, setBlocked] = useState(false);
   const [partnerName, setPartnerName] = useState<string>("");
   const [partnerPhoto, setPartnerPhoto] = useState<string | null>(null);
+  const [partnerPhotoBroken, setPartnerPhotoBroken] = useState(false);
+
+  useEffect(() => {
+    setPartnerPhotoBroken(false);
+  }, [partnerPhoto]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -89,7 +94,8 @@ export default function ChatThread() {
           </Link>
           <div className="w-9 h-9 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-sm font-bold text-white shrink-0">
             {partnerPhoto
-              ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName} />
+              ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName}
+              onError={() => setPartnerPhotoBroken(true)} />
               : partnerName.charAt(0).toUpperCase()}
           </div>
           <h1 className="font-heading text-lg text-white">@{partnerName || "..."}</h1>
@@ -114,7 +120,8 @@ export default function ChatThread() {
                     {!mine && (
                       <div className="w-6 h-6 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-[10px] font-bold text-white shrink-0">
                         {partnerPhoto
-                          ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName} />
+                          ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName}
+              onError={() => setPartnerPhotoBroken(true)} />
                           : partnerName.charAt(0).toUpperCase()}
                       </div>
                     )}

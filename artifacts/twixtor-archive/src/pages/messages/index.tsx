@@ -26,6 +26,7 @@ function timeAgo(iso: string) {
 export default function MessagesInbox() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [brokenPhotos, setBrokenPhotos] = useState(new Set());
 
   useEffect(() => {
     const load = async () => {
@@ -69,7 +70,8 @@ export default function MessagesInbox() {
               >
                 <div className="w-12 h-12 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-base font-bold text-white shrink-0">
                   {c.photoUrl
-                    ? <img src={c.photoUrl} className="w-full h-full object-cover" alt={c.username} />
+                    ? <img src={c.photoUrl} className="w-full h-full object-cover" alt={c.username}
+                        onError={() => setBrokenPhotos((prev) => { const s = new Set(prev); s.add(c.userId); return s; })} />
                     : c.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">

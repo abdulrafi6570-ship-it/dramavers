@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Link, useLocation } from "wouter";
 import ProfileCard from "@/components/ProfileCard";
 import FallingText from "@/components/FallingText";
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Camera, Loader2, Lock, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,6 +39,10 @@ export default function Profile() {
 
   const u = user as any;
 
+  useEffect(() => {
+    setAvatarBroken(false);
+  }, [u.photoUrl]);
+
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -52,7 +56,11 @@ export default function Profile() {
         body: formData,
       });
       if (!res.ok) throw new Error("Upload failed");
-      await res.json();
+      const data = await res.json();
+      if (data.user) {
+        qc.setQueryData(getGetMeQueryKey(), data.user);
+      }
+      setAvatarBroken(false);
       qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
       toast({ title: "Foto profil diperbarui!" });
     } catch {
