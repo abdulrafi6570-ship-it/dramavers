@@ -98,7 +98,7 @@ export function FeedbackButton() {
       </AnimatePresence>
 
       <motion.div
-        className="hidden md:block fixed bottom-6 right-16 z-40 select-none"
+        className="fixed bottom-24 right-20 z-40 select-none"
       >
         <div className="relative">
           <motion.button
