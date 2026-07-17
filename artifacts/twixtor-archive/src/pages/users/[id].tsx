@@ -162,8 +162,16 @@ export default function UserProfile() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
             <div className="w-24 h-24 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-3xl font-bold text-white overflow-hidden flex-shrink-0 shadow-[0_0_30px_rgba(255,255,255,0.06)]">
               {profile.photoUrl
-                ? <img src={profile.photoUrl} alt={profile.username} className="w-full h-full object-cover" />
-                : profile.username.charAt(0).toUpperCase()}
+                ? (
+                  <img
+                    src={profile.photoUrl}
+                    alt={profile.username}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                )
+                : null}
+              {!profile.photoUrl && <span>{profile.username.charAt(0).toUpperCase()}</span>}
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 mb-2">

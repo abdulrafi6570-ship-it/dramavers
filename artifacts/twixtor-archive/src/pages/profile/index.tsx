@@ -118,9 +118,17 @@ export default function Profile() {
           <div className="relative z-10 flex-shrink-0">
             <div className="w-28 h-28 rounded-full glass-panel-strong border border-white/15 flex items-center justify-center text-4xl font-bold text-white overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.06)]">
               {u.photoUrl
-                ? <img src={u.photoUrl} alt={user.username} className="w-full h-full object-cover" />
-                : user.username.charAt(0).toUpperCase()
-              }
+              ? (
+                <img
+                  src={u.photoUrl}
+                  alt={user.username}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              )
+              : null
+            }
+            {!u.photoUrl && <span>{user.username.charAt(0).toUpperCase()}</span>}
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
