@@ -126,9 +126,10 @@ export default function ChatThread() {
                       </div>
                     )}
                     <div
-                      className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
+                      style={mine ? { backgroundColor: "#7c3aed" } : {}}
+                    className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
                         mine
-                          ? "bg-primary text-white rounded-br-sm"
+                          ? "rounded-br-sm text-white"
                           : "glass-panel text-white/90 rounded-bl-sm"
                       }`}
                     >
