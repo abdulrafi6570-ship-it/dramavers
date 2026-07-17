@@ -17,3 +17,4 @@ export * from "./user_follows";
 export * from "./feedback";
 export * from "./chat";
 export * from "./uploads";
+export * from "./private_messages";
