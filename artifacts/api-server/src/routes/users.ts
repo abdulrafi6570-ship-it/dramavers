@@ -118,33 +118,6 @@ router.get("/users/:id/followers", optionalAuth, async (req, res): Promise<void>
   res.json(followers.map(u => ({ ...u, photoUrl: u.photoUrl ?? null })));
 });
 
-router.post("/users/:id/follow", requireAuth, async (req, res): Promise<void> => {
-  const params = UserIdParam.safeParse({ id: req.params.id });
-  if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
-  if (req.user!.id === params.data.id) { res.status(400).json({ error: "Cannot follow yourself" }); return; }
-
-  const [target] = await db.select({ followerId: usersTable.id }).from(usersTable).where(eq(usersTable.id, params.data.id));
-  if (!target) { res.status(404).json({ error: "User not found" }); return; }
-
-  await db.insert(userFollowsTable).values({
-    followerId: req.user!.id,
-    followingId: params.data.id,
-  }).onConflictDoNothing();
-
-  res.json({ ok: true });
-});
-
-router.delete("/users/:id/follow", requireAuth, async (req, res): Promise<void> => {
-  const params = UserIdParam.safeParse({ id: req.params.id });
-  if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
-
-  await db.delete(userFollowsTable).where(
-    and(eq(userFollowsTable.followerId, req.user!.id), eq(userFollowsTable.followingId, params.data.id))
-  );
-
-  res.json({ ok: true });
-});
-
 router.get("/users/:id/favorites", optionalAuth, async (req, res): Promise<void> => {
   const params = UserIdParam.safeParse({ id: req.params.id });
   if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
