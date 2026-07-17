@@ -66,8 +66,7 @@ export async function uploadToR2(
   }));
 
   const base = R2_PUBLIC_URL!.replace(/\/$/, "");
-  const backendBase = (process.env.BACKEND_URL ?? process.env.RAILWAY_PUBLIC_DOMAIN?.replace(/^/, 'https://') ?? R2_PUBLIC_URL!).replace(/\/$/, '');
-  const url = `${backendBase}/r2proxy/${key}`;;
+  const url = `${base}/${key}`;
 
   logger.info({ bucket: R2_BUCKET_NAME, key, url }, "[R2] Upload success");
   return url;
