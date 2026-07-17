@@ -46,7 +46,7 @@ export function BgmPlayer({ src }: BgmPlayerProps) {
       <audio ref={audioRef} src={src} preload="none" />
       <button
         onClick={toggle}
-        className="fixed bottom-24 right-4 z-[500] w-11 h-11 rounded-full glass-panel-strong border border-white/10 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all shadow-lg"
+        className="fixed top-20 right-4 z-[500] w-11 h-11 rounded-full glass-panel-strong border border-white/10 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all shadow-lg"
         title={playing ? "Matikan musik" : "Nyalakan musik"}
       >
         {playing ? (

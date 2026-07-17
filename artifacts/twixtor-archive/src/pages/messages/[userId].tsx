@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { ArrowLeft, Send, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Msg {
   id: number;
@@ -14,6 +15,7 @@ interface Msg {
 
 export default function ChatThread() {
   const { userId } = useParams<{ userId: string }>();
+  const { user } = useAuth();
 
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -21,6 +23,7 @@ export default function ChatThread() {
   const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(false);
   const [partnerName, setPartnerName] = useState<string>("");
+  const [partnerPhoto, setPartnerPhoto] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -37,6 +40,7 @@ export default function ChatThread() {
       if (profRes.ok) {
         const prof = await profRes.json();
         setPartnerName(prof.username);
+        setPartnerPhoto(prof.photoUrl ?? null);
       }
     } finally {
       setLoading(false);
@@ -83,6 +87,11 @@ export default function ChatThread() {
           <Link href="/messages" className="text-white/60 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
           </Link>
+          <div className="w-9 h-9 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-sm font-bold text-white shrink-0">
+            {partnerPhoto
+              ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName} />
+              : partnerName.charAt(0).toUpperCase()}
+          </div>
           <h1 className="font-heading text-lg text-white">@{partnerName || "..."}</h1>
         </div>
 
@@ -98,19 +107,29 @@ export default function ChatThread() {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto space-y-2 pb-4">
-              {messages.map((m) => (
-                <div key={m.id} className={`flex ${m.isMine ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                      m.isMine
-                        ? "bg-primary text-white rounded-br-sm"
-                        : "glass-panel text-white/90 rounded-bl-sm"
-                    }`}
-                  >
-                    {m.message}
+              {messages.map((m) => {
+                const mine = user ? m.senderId === user.id : m.isMine;
+                return (
+                  <div key={m.id} className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}>
+                    {!mine && (
+                      <div className="w-6 h-6 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                        {partnerPhoto
+                          ? <img src={partnerPhoto} className="w-full h-full object-cover" alt={partnerName} />
+                          : partnerName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
+                        mine
+                          ? "bg-primary text-white rounded-br-sm"
+                          : "glass-panel text-white/90 rounded-bl-sm"
+                      }`}
+                    >
+                      {m.message}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={bottomRef} />
             </div>
 

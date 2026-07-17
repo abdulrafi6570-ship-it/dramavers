@@ -98,13 +98,7 @@ export function FeedbackButton() {
       </AnimatePresence>
 
       <motion.div
-        drag
-        dragMomentum={false}
-        dragElastic={0}
-        dragConstraints={constraintsRef}
-        className="fixed bottom-[4.5rem] md:bottom-6 right-4 md:right-16 z-40 touch-none select-none"
-        style={{ cursor: "grab" }}
-        whileDrag={{ cursor: "grabbing", scale: 1.05 }}
+        className="hidden md:block fixed bottom-6 right-16 z-40 select-none"
       >
         <div className="relative">
           <motion.button
