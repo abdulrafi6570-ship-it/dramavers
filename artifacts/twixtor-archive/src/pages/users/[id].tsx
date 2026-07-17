@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/layout/Navbar";
 import { useParams, Link } from "wouter";
 import { useState, useEffect } from "react";
-import { ArrowLeft, UserPlus, UserCheck, Users, Lock, Heart } from "lucide-react";
+import { ArrowLeft, UserPlus, UserCheck, Users, Lock, Heart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -217,6 +217,13 @@ export default function UserProfile() {
                     : <><UserPlus className="h-4 w-4 mr-2" />{profile.isFollowedByThem ? "Follow Balik" : "Ikuti"}</>
                   }
                 </Button>
+              )}
+              {user && !isOwnProfile && (!profile.isPrivate || profile.isFriend) && (
+                <Link href={`/messages/${profile.id}`}>
+                  <Button variant="outline" className="border-white/20 text-white/80 hover:text-white hover:bg-white/8 ml-2">
+                    <MessageCircle className="h-4 w-4 mr-2" /> Chat
+                  </Button>
+                </Link>
               )}
               {isOwnProfile && (
                 <Link href="/profile">
