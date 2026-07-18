@@ -29,7 +29,7 @@ export function Navbar() {
     { href: "/dramas", label: "Dramas" },
     { href: "/actors", label: "Actors" },
     { href: "/videos", label: "Browse" },
-    { href: "/chat",   label: "Chat"   },
+    { href: "/messages",   label: "Chat"   },
     { href: "/search", label: "Search" },
   ];
 
@@ -57,8 +57,8 @@ export function Navbar() {
     {
       icon: <MessageSquare size={18} />,
       label: "Chat",
-      active: location.startsWith("/chat"),
-      onClick: () => setLocation("/chat"),
+      active: location.startsWith("/messages"),
+      onClick: () => setLocation("/messages"),
     },
     {
       icon: user?.photoUrl ? (
@@ -95,7 +95,7 @@ export function Navbar() {
     },
     {
       label: "Chat",
-      onClick: () => setLocation("/chat"),
+      onClick: () => setLocation("/messages"),
       hoverStyles: { bgColor: "rgba(74,222,128,0.2)", textColor: "#4ade80" },
     },
     {

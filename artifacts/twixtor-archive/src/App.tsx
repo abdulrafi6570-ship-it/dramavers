@@ -37,6 +37,7 @@ import AdminFeedback from "@/pages/admin/feedback";
 import GlobalChat from "@/pages/chat/index";
 import MessagesInbox from "@/pages/messages/index";
 import ChatThread from "@/pages/messages/[userId]";
+import GlobalChatPage from "@/pages/messages/global";
 import { FeedbackButton } from "@/components/FeedbackButton";
 
 const queryClient = new QueryClient({
@@ -132,6 +133,7 @@ function Router() {
       <Route path="/requests" component={Requests} />
       <Route path="/chat" component={GlobalChat} />
       <Route path="/messages" component={MessagesInbox} />
+      <Route path="/messages/global" component={GlobalChatPage} />
       <Route path="/messages/:userId" component={ChatThread} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
