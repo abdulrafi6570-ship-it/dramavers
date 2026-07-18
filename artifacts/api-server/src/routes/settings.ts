@@ -9,6 +9,17 @@ const router: IRouter = Router();
 router.get("/settings/:key", async (req: Request, res: Response): Promise<void> => {
   const key = String(req.params.key);
   const [setting] = await db.select().from(siteSettingsTable).where(eq(siteSettingsTable.key, key));
+
+  // Auto-proxy R2 URLs agar tidak diblokir ISP
+  if (setting?.value && key === "bgm_url") {
+    const backendUrl = (process.env.BACKEND_URL ?? "").replace(/\/$/, "");
+    const r2Match = setting.value.match(/https?:\/\/pub-[^.]+\.r2\.dev\/(.+)/);
+    if (r2Match && backendUrl) {
+      res.json({ ...setting, value: `${backendUrl}/r2proxy/${r2Match[1]}` });
+      return;
+    }
+  }
+
   res.json(setting ?? null);
 });
 
