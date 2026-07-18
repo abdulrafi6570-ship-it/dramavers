@@ -32,16 +32,17 @@ export default function GlobalChatPage() {
     const load = async () => {
       try {
         const res = await fetch("/api/chat", { headers: authHeader() });
-        if (res.ok) {
-          setMsgs(await res.json());
-          setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-        }
+        if (res.ok) setMsgs(await res.json());
       } finally { setLoading(false); }
     };
     load();
     const iv = setInterval(load, 5000);
     return () => clearInterval(iv);
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs]);
 
   const send = async () => {
     const msg = input.trim();
@@ -57,20 +58,23 @@ export default function GlobalChatPage() {
         setInput("");
         const data = await res.json();
         setMsgs((prev) => [...prev, data]);
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
       }
     } finally { setSending(false); }
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-dvh bg-background flex flex-col overflow-hidden">
       <Navbar />
-      <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur border-b border-white/10 pt-16">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => window.history.back()} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-4 h-4 text-white" />
+      <div className="max-w-2xl w-full mx-auto px-4 flex-1 flex flex-col overflow-hidden min-h-0">
+        {/* Header inline */}
+        <div className="flex items-center gap-3 py-3 border-b border-white/10 bg-background shrink-0">
+          <button
+            onClick={() => window.history.back()}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
             <Globe className="w-4 h-4 text-primary" />
           </div>
           <div>
@@ -78,46 +82,49 @@ export default function GlobalChatPage() {
             <p className="text-[11px] text-white/40">Semua pengguna</p>
           </div>
         </div>
-      </div>
 
-      <div className="flex-1 max-w-2xl w-full mx-auto px-4 pt-36 pb-24 overflow-y-auto">
-        {loading ? (
-          <p className="text-white/30 text-xs text-center py-12">Memuat...</p>
-        ) : msgs.length === 0 ? (
-          <p className="text-white/30 text-xs text-center py-12">Belum ada pesan. Jadilah yang pertama!</p>
-        ) : (
-          <div className="space-y-3">
-            {msgs.map((m) => (
-              <div key={m.id} className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                  {m.username.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xs font-semibold text-primary">{m.username}</span>
-                    <span className="text-[10px] text-white/30">{timeAgo(m.createdAt)}</span>
+        {/* Messages — scroll area, pesan pin ke bawah */}
+        <div className="flex-1 overflow-y-auto min-h-0 py-4">
+          {loading ? (
+            <p className="text-white/30 text-xs text-center py-12">Memuat...</p>
+          ) : msgs.length === 0 ? (
+            <p className="text-white/30 text-xs text-center py-12">Belum ada pesan. Jadilah yang pertama!</p>
+          ) : (
+            <div className="flex flex-col justify-end min-h-full space-y-3">
+              {msgs.map((m) => (
+                <div key={m.id} className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {m.username.charAt(0).toUpperCase()}
                   </div>
-                  <p className="text-sm text-white/80 break-words mt-0.5">{m.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-semibold text-primary">{m.username}</span>
+                      <span className="text-[10px] text-white/30">{timeAgo(m.createdAt)}</span>
+                    </div>
+                    <p className="text-sm text-white/80 break-words mt-0.5">{m.message}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <div ref={bottomRef} />
-          </div>
-        )}
-      </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+          )}
+        </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur border-t border-white/10">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2">
+        {/* Input inline — pb-20 biar di atas dock */}
+        <div className="flex items-center gap-2 py-2 pb-20 border-t border-white/10 bg-background shrink-0">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder="Kirim pesan ke semua..."
-            className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-primary/50"
+            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/30 px-2"
           />
-          <button onClick={send} disabled={!input.trim() || sending}
-            className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
-            style={{ backgroundColor: "#7c3aed" }}>
+          <button
+            onClick={send}
+            disabled={!input.trim() || sending}
+            className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center disabled:opacity-40"
+            style={{ backgroundColor: "#7c3aed" }}
+          >
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
