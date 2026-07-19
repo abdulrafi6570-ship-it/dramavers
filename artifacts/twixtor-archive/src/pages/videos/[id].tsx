@@ -217,7 +217,7 @@ export default function VideoDetail() {
                   onWaiting={() => setVideoLoading(true)}
                   onPlaying={() => setVideoLoading(false)}
                 />
-                {videoLoading && downloadProgress === null && (
+                {videoLoading && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black">
                     <div className="relative w-10 h-10">
                       <div className="absolute inset-0 rounded-full border-2 border-white/10" />
