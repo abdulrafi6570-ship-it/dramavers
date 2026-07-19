@@ -122,9 +122,13 @@ export default function VideoDetail() {
     if (!user) { setLocation("/login"); return; }
     if (!commentText.trim()) return;
     try {
-      await createComment.mutateAsync({ data: { videoId: id, text: commentText } });
+      const newComment = await createComment.mutateAsync({ data: { videoId: id, text: commentText } });
       setCommentText("");
-      invalidateComments();
+      // Optimistic append — tidak wipe cache agar nested replies tetap ada
+      qc.setQueryData(getListCommentsQueryKey({ videoId: id }), (old: any) => {
+        if (!old) return [{ ...newComment, replies: [] }];
+        return [...old, { ...newComment, replies: [] }];
+      });
     } catch {
       toast({ title: "Gagal mengirim komentar", variant: "destructive" });
     }

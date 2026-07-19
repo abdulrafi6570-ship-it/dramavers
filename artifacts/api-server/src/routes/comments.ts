@@ -45,7 +45,6 @@ async function fetchCommentsForVideo(videoId: number) {
     }
   }
 
-  console.log('[DEBUG] topLevel count:', topLevel.length, 'replyMap:', JSON.stringify([...replyMap.entries()]));
   return topLevel.map((r) => ({
     id: r.comment.id, text: r.comment.text, userId: r.comment.userId,
     username: r.username, photoUrl: r.photoUrl ?? null,
