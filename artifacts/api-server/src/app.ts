@@ -8,6 +8,7 @@ import r2proxyRouter from "./routes/r2proxy";
 const app: Express = express();
 
 app.use(cors());
+app.use(cors());
 app.use("/r2proxy", r2proxyRouter);
 app.use(
   pinoHttp({
