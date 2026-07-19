@@ -135,17 +135,10 @@ export default function VideoDetail() {
     if (!user || !currentReplyTo) return;
     if (!replyText.trim()) return;
     try {
-      const newReply = await createComment.mutateAsync({ data: { videoId: id, text: replyText, parentId: currentReplyTo.id } });
+      await createComment.mutateAsync({ data: { videoId: id, text: replyText, parentId: currentReplyTo.id } });
       setReplyText("");
       setReplyTo(null);
-      qc.setQueryData(getListCommentsQueryKey({ videoId: id }), (old: any) => {
-        if (!old) return old;
-        return old.map((c: any) =>
-          c.id === currentReplyTo.id
-            ? { ...c, replies: [...(c.replies || []), { ...newReply, replies: [] }] }
-            : c
-        );
-      });
+      invalidateComments();
       toast({ title: "Balasan terkirim!" });
     } catch {
       toast({ title: "Gagal mengirim balasan", variant: "destructive" });
