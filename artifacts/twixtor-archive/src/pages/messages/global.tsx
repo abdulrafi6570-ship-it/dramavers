@@ -108,7 +108,7 @@ export default function GlobalChatPage() {
                         {isFirstInGroup && (
                           <span className="text-[10px] text-white/30 mb-1 mr-1">{timeAgo(m.createdAt)}</span>
                         )}
-                        <div className="bg-primary rounded-2xl rounded-tr-sm px-3.5 py-2">
+                        <div className="rounded-2xl rounded-tr-sm px-3.5 py-2" style={{ backgroundColor: "#7c3aed" }}>
                           <p className="text-sm text-white break-words">{m.message}</p>
                         </div>
                       </div>
