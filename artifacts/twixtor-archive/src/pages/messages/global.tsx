@@ -97,7 +97,7 @@ export default function GlobalChatPage() {
           ) : (
             <div className="flex flex-col justify-end min-h-full space-y-1">
               {msgs.map((m, i) => {
-                const isMine = user?.id === m.userId;
+                const isMine = user != null && Number(user.id) === Number(m.userId);
                 const prevMsg = msgs[i - 1];
                 const isFirstInGroup = !prevMsg || prevMsg.userId !== m.userId;
 
