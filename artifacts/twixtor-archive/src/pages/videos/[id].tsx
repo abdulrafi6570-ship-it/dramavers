@@ -140,7 +140,15 @@ export default function VideoDetail() {
     );
   }
 
-  if (!video) return null;
+  if (!video) return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center gap-4">
+        <p className="text-white/40 text-sm">Video tidak ditemukan.</p>
+        <Link href="/videos" className="text-primary text-sm hover:underline">← Kembali ke Videos</Link>
+      </main>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
