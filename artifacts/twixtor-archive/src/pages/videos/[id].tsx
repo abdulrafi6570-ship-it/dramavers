@@ -226,6 +226,8 @@ export default function VideoDetail() {
                 <video
                   ref={videoRef}
                   src={video.videoUrl}
+                  autoPlay
+                  playsInline
                   controls
                   poster={video.thumbnailUrl ?? undefined}
                   className="w-full h-full object-contain"
