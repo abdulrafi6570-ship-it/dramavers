@@ -124,7 +124,7 @@ router.get("/videos/:id", optionalAuth, async (req, res): Promise<void> => {
 
   // Average rating
   const [avgRow] = await db.select({
-    avg: sql<number>`avg((smooth + quality + use_for_edit) / 3.0)`,
+    avg: sql<number>`avg(rating)`,
   }).from(ratingsTable).where(eq(ratingsTable.videoId, id));
 
   // Related videos
