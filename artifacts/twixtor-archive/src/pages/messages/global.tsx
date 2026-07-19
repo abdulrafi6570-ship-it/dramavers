@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Globe, Send, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface GlobalMsg {
   id: number; userId: number; username: string; message: string; createdAt: string;
@@ -22,6 +23,7 @@ function authHeader() {
 }
 
 export default function GlobalChatPage() {
+  const { user } = useAuth();
   const [msgs, setMsgs] = useState<GlobalMsg[]>([]);
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
@@ -65,8 +67,9 @@ export default function GlobalChatPage() {
   return (
     <div className="h-dvh bg-background flex flex-col overflow-hidden">
       <Navbar />
+
       <div className="max-w-2xl w-full mx-auto px-4 flex-1 flex flex-col overflow-hidden min-h-0">
-        {/* Header inline */}
+        {/* Header */}
         <div className="flex items-center gap-3 py-3 border-b border-white/10 bg-background shrink-0">
           <button
             onClick={() => window.history.back()}
@@ -83,34 +86,65 @@ export default function GlobalChatPage() {
           </div>
         </div>
 
-        {/* Messages — scroll area, pesan pin ke bawah */}
-        <div className="flex-1 overflow-y-auto min-h-0 py-4">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto min-h-0 py-4 px-1">
           {loading ? (
             <p className="text-white/30 text-xs text-center py-12">Memuat...</p>
           ) : msgs.length === 0 ? (
-            <p className="text-white/30 text-xs text-center py-12">Belum ada pesan. Jadilah yang pertama!</p>
+            <p className="text-white/30 text-xs text-center py-12">
+              Belum ada pesan. Jadilah yang pertama!
+            </p>
           ) : (
-            <div className="flex flex-col justify-end min-h-full space-y-3">
-              {msgs.map((m) => (
-                <div key={m.id} className="flex items-start gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                    {m.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-primary">{m.username}</span>
-                      <span className="text-[10px] text-white/30">{timeAgo(m.createdAt)}</span>
+            <div className="flex flex-col justify-end min-h-full space-y-1">
+              {msgs.map((m, i) => {
+                const isMine = user?.id === m.userId;
+                const prevMsg = msgs[i - 1];
+                const isFirstInGroup = !prevMsg || prevMsg.userId !== m.userId;
+
+                if (isMine) {
+                  return (
+                    <div key={m.id} className={`flex justify-end ${isFirstInGroup ? "mt-3" : "mt-0.5"}`}>
+                      <div className="max-w-[72%] flex flex-col items-end">
+                        {isFirstInGroup && (
+                          <span className="text-[10px] text-white/30 mb-1 mr-1">{timeAgo(m.createdAt)}</span>
+                        )}
+                        <div className="bg-primary rounded-2xl rounded-tr-sm px-3.5 py-2">
+                          <p className="text-sm text-white break-words">{m.message}</p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-white/80 break-words mt-0.5">{m.message}</p>
+                  );
+                }
+
+                return (
+                  <div key={m.id} className={`flex items-end gap-2 ${isFirstInGroup ? "mt-3" : "mt-0.5"}`}>
+                    <div className="w-7 h-7 shrink-0 self-end">
+                      {isFirstInGroup && (
+                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[11px] font-bold text-white">
+                          {m.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="max-w-[72%] flex flex-col">
+                      {isFirstInGroup && (
+                        <div className="flex items-baseline gap-1.5 mb-1 ml-1">
+                          <span className="text-[11px] font-semibold text-primary">{m.username}</span>
+                          <span className="text-[10px] text-white/30">{timeAgo(m.createdAt)}</span>
+                        </div>
+                      )}
+                      <div className="bg-white/10 rounded-2xl rounded-tl-sm px-3.5 py-2">
+                        <p className="text-sm text-white/85 break-words">{m.message}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={bottomRef} />
             </div>
           )}
         </div>
 
-        {/* Input inline — pb-20 biar di atas dock */}
+        {/* Input */}
         <div className="flex items-center gap-2 py-2 pb-20 border-t border-white/10 bg-background shrink-0">
           <input
             value={input}
