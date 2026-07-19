@@ -2,6 +2,7 @@ import { useGetVideo, getGetVideoQueryKey, useRecordView, useAddFavorite, useRem
 import { Navbar } from "@/components/layout/Navbar";
 import { VideoCard } from "@/components/video/VideoCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDownloadManager } from "@/contexts/DownloadContext";
 import { Link, useParams, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X } from "lucide-react";
@@ -29,7 +30,6 @@ export default function VideoDetail() {
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
   const [replyText, setReplyText] = useState("");
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
-  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const [videoLoading, setVideoLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -44,6 +44,8 @@ export default function VideoDetail() {
   const downloadVideo = useDownloadVideo();
   const createComment = useCreateComment();
   const deleteComment = useDeleteComment();
+  const { downloads, startDownload } = useDownloadManager();
+  const isDownloadingThis = downloads.some(d => d.videoId === id && d.status === "downloading");
 
   useEffect(() => {
     if (id) recordView.mutate({ id });
@@ -66,35 +68,8 @@ export default function VideoDetail() {
     try {
       const res = await downloadVideo.mutateAsync({ id });
       if (!res.videoUrl) throw new Error("No URL");
-      setDownloadProgress(0);
-      const response = await fetch(res.videoUrl);
-      if (!response.ok || !response.body) throw new Error("Fetch gagal");
-      const contentLength = response.headers.get("content-length");
-      const total = contentLength ? parseInt(contentLength, 10) : null;
-      const reader = response.body.getReader();
-      const chunks: Uint8Array[] = [];
-      let received = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.length;
-        if (total) setDownloadProgress(Math.round((received / total) * 100));
-      }
-      const blob = new Blob(chunks, { type: "video/mp4" });
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      const safeName2 = (res.title || "video").replace(/[^a-zA-Z0-9\u00C0-\uFFFF _-]/g, "").trim() || "video";
-      link.download = safeName2 + "_" + Date.now() + ".mp4";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-      setDownloadProgress(null);
-      toast({ title: "Download selesai!" });
+      startDownload(id, res.title || "video", res.videoUrl);
     } catch {
-      setDownloadProgress(null);
       toast({ title: "Download gagal", variant: "destructive" });
     }
   }
@@ -251,25 +226,6 @@ export default function VideoDetail() {
                     <p className="text-white/40 text-xs">Memuat video...</p>
                   </div>
                 )}
-                {downloadProgress !== null && (
-                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm">
-                    <div className="relative w-20 h-20">
-                      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                        <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6"/>
-                        <circle cx="40" cy="40" r="34" fill="none" stroke="white" strokeWidth="6"
-                          strokeLinecap="round"
-                          strokeDasharray={`${2 * Math.PI * 34}`}
-                          strokeDashoffset={`${2 * Math.PI * 34 * (1 - downloadProgress / 100)}`}
-                          style={{ transition: "stroke-dashoffset 0.3s ease" }}
-                        />
-                      </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">
-                        {downloadProgress}%
-                      </span>
-                    </div>
-                    <p className="text-white/80 text-sm font-medium tracking-wide">Mengunduh video...</p>
-                  </div>
-                )}
                 </>
               ) : video.thumbnailUrl ? (
                 <div className="relative w-full h-full">
@@ -294,10 +250,10 @@ export default function VideoDetail() {
                 <Button
                   onClick={handleDownloadClick}
                   className="flex-1 sm:flex-none bg-white hover:bg-white/90 text-black font-semibold"
-                  disabled={downloadVideo.isPending || downloadProgress !== null}
+                  disabled={downloadVideo.isPending || isDownloadingThis}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {downloadProgress !== null ? `${downloadProgress}%` : "Download"}
+                  {isDownloadingThis ? "Mengunduh..." : "Download"}
                 </Button>
                 <Button variant="outline" onClick={handleCopy} className="border-white/15 text-white hover:bg-white/8">
                   <Copy className="h-4 w-4 mr-2" />
@@ -550,23 +506,6 @@ export default function VideoDetail() {
         </div>
       </main>
 
-      {/* Download Progress Bar */}
-      {downloadProgress !== null && (
-        <div className="fixed bottom-24 left-4 right-4 z-50 flex justify-center">
-          <div className="bg-black/90 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-2xl w-full max-w-sm">
-            <div className="flex justify-between items-center text-sm text-white mb-2">
-              <span className="font-medium">Mengunduh video...</span>
-              <span className="text-primary font-bold">{downloadProgress}%</span>
-            </div>
-            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-200"
-                style={{ width: `${downloadProgress}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Download Modal */}
       <Dialog open={showDownloadModal} onOpenChange={setShowDownloadModal}>
