@@ -153,7 +153,7 @@ router.get("/videos/:id", optionalAuth, async (req, res): Promise<void> => {
     fileSize: v.fileSize ?? null, format: v.format ?? null, tags: v.tags ?? [],
     viewCount: v.viewCount, downloadCount: v.downloadCount, favoriteCount: v.favoriteCount,
     popularityScore: v.popularityScore ?? null,
-    averageRating: avgRow.avg ? Number(avgRow.avg) : null,
+    averageRating: avgRow?.avg ? Number(avgRow.avg) : null,
     isFavorited, isBookmarked,
     relatedVideos: related.map((r) => formatVideo({ ...r.video, dramaName: r.dramaName, actorName: r.actorName })),
     createdAt: v.createdAt.toISOString(),
