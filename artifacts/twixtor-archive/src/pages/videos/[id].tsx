@@ -221,6 +221,7 @@ export default function VideoDetail() {
               }
             >
               {video.videoUrl ? (
+                <>
                 <video
                   ref={videoRef}
                   src={video.videoUrl}
@@ -234,6 +235,26 @@ export default function VideoDetail() {
                     }
                   }}
                 />
+                {downloadProgress !== null && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm">
+                    <div className="relative w-20 h-20">
+                      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6"/>
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="white" strokeWidth="6"
+                          strokeLinecap="round"
+                          strokeDasharray={`${2 * Math.PI * 34}`}
+                          strokeDashoffset={`${2 * Math.PI * 34 * (1 - downloadProgress / 100)}`}
+                          style={{ transition: "stroke-dashoffset 0.3s ease" }}
+                        />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">
+                        {downloadProgress}%
+                      </span>
+                    </div>
+                    <p className="text-white/80 text-sm font-medium tracking-wide">Mengunduh video...</p>
+                  </div>
+                )}
+                </>
               ) : video.thumbnailUrl ? (
                 <div className="relative w-full h-full">
                   <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover" />
