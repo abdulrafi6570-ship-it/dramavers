@@ -85,7 +85,8 @@ export default function VideoDetail() {
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = (res.title || "video") + ".mp4";
+      const safeName2 = (res.title || "video").replace(/[^a-zA-Z0-9\u00C0-\uFFFF _-]/g, "").trim() || "video";
+      link.download = safeName2 + "_" + Date.now() + ".mp4";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
