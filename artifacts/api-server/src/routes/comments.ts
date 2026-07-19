@@ -129,3 +129,10 @@ router.post("/comments/:id/like", requireAuth, async (req, res): Promise<void> =
 });
 
 export default router;
+
+// DEBUG TEMP - hapus setelah debug selesai
+router.get("/debug/comments/:videoId", async (req, res): Promise<void> => {
+  const videoId = Number(req.params.videoId);
+  const rows = await db.select({ id: commentsTable.id, text: commentsTable.text, parentId: commentsTable.parentId }).from(commentsTable).where(eq(commentsTable.videoId, videoId)).orderBy(commentsTable.id);
+  res.json(rows);
+});
