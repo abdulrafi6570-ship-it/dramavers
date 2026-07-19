@@ -336,6 +336,13 @@ export default function VideoDetail() {
                     return <p className="text-center text-sm text-white/20 py-4">Belum ada komentar</p>;
                   }
                   const topLevel = comments.filter((c: any) => !c.parentId);
+                  const clientReplyMap = new Map<number, any[]>();
+                  (comments as any[]).forEach((c: any) => {
+                    if (c.parentId) {
+                      if (!clientReplyMap.has(c.parentId)) clientReplyMap.set(c.parentId, []);
+                      clientReplyMap.get(c.parentId)!.push(c);
+                    }
+                  });
                   return topLevel.map((comment: any) => (
                     <div key={comment.id}>
                       {/* Top-level comment */}
@@ -408,9 +415,14 @@ export default function VideoDetail() {
                       )}
 
                       {/* Nested replies */}
-                      {comment.replies?.length > 0 && (
+                      {(() => {
+                        const serverReplies: any[] = comment.replies ?? [];
+                        const clientReplies: any[] = clientReplyMap.get(comment.id) ?? [];
+                        const merged = [...serverReplies, ...clientReplies]
+                          .filter((r, i, arr) => arr.findIndex((x: any) => x.id === r.id) === i);
+                        return merged.length > 0 && (
                         <div className="ml-11 mt-3 space-y-3 border-l border-white/[0.06] pl-3">
-                          {comment.replies.map((reply: any) => (
+                          {merged.map((reply: any) => (
                             <div key={reply.id} className="group flex gap-2">
                               <Link href={`/users/${reply.userId}`}>
                                 <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
@@ -439,7 +451,8 @@ export default function VideoDetail() {
                             </div>
                           ))}
                         </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   ));
                 })()}
