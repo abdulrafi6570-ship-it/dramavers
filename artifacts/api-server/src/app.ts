@@ -1,9 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
-import router from "./src/routes";
+import router from "./routes";
 import { logger } from "./lib/logger";
-import r2proxyRouter from "./src/routes/r2proxy";
+import r2proxyRouter from "./routes/r2proxy";
 
 const app: Express = express();
 
