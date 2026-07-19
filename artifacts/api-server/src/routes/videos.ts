@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, videosTable, dramasTable, actorsTable, favoritesTable, bookmarksTable, downloadsTable, ratingsTable } from "@workspace/db";
+import { db, videosTable, dramasTable, actorsTable, favoritesTable, bookmarksTable, downloadsTable, ratingsTable , videoViewsTable } from "@workspace/db";
 import { eq, ilike, and, or, sql, count, desc, asc } from "drizzle-orm";
 import { requireAuth, requireVerified, optionalAuth, requireAdmin } from "../middlewares/auth";
 import {
@@ -195,9 +195,41 @@ router.post("/videos/:id/view", optionalAuth, async (req, res): Promise<void> =>
     res.status(400).json({ error: params.error.message });
     return;
   }
-  await db.update(videosTable)
-    .set({ viewCount: sql`view_count + 1`, popularityScore: sql`COALESCE(popularity_score, 0) + 0.5` })
-    .where(eq(videosTable.id, params.data.id));
+  const videoId = params.data.id;
+  const userId = req.user?.id ?? null;
+  const ip = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim() || null;
+
+  // Cek apakah sudah pernah ditonton (user atau IP)
+  let alreadyViewed = false;
+  try {
+    if (userId !== null) {
+      const [existing] = await db.select({ id: videoViewsTable.id })
+        .from(videoViewsTable)
+        .where(eq(videoViewsTable.videoId, videoId) && eq(videoViewsTable.userId, userId))
+        .limit(1);
+      alreadyViewed = !!existing;
+    } else if (ip) {
+      const [existing] = await db.select({ id: videoViewsTable.id })
+        .from(videoViewsTable)
+        .where(eq(videoViewsTable.videoId, videoId) && eq(videoViewsTable.ipAddress, ip))
+        .limit(1);
+      alreadyViewed = !!existing;
+    }
+  } catch { alreadyViewed = false; }
+
+  if (!alreadyViewed) {
+    try {
+      await db.insert(videoViewsTable).values({
+        videoId,
+        userId: userId ?? undefined,
+        ipAddress: userId ? null : ip,
+      });
+      await db.update(videosTable)
+        .set({ viewCount: sql`view_count + 1`, popularityScore: sql`COALESCE(popularity_score, 0) + 0.5` })
+        .where(eq(videosTable.id, videoId));
+    } catch { /* conflict — sudah ada, abaikan */ }
+  }
+
   res.json({ success: true });
 });
 

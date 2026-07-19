@@ -18,3 +18,4 @@ export * from "./feedback";
 export * from "./chat";
 export * from "./uploads";
 export * from "./private_messages";
+export * from "./video_views";
