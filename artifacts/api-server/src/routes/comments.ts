@@ -18,6 +18,7 @@ async function fetchCommentsForVideo(videoId: number) {
   const topLevel = await db.select({
     comment: commentsTable,
     username: usersTable.username,
+    photoUrl: usersTable.photoUrl,
   }).from(commentsTable)
     .innerJoin(usersTable, eq(commentsTable.userId, usersTable.id))
     .where(and(eq(commentsTable.videoId, videoId), isNull(commentsTable.parentId)))
@@ -26,6 +27,7 @@ async function fetchCommentsForVideo(videoId: number) {
   const replies = await db.select({
     comment: commentsTable,
     username: usersTable.username,
+    photoUrl: usersTable.photoUrl,
   }).from(commentsTable)
     .innerJoin(usersTable, eq(commentsTable.userId, usersTable.id))
     .where(eq(commentsTable.videoId, videoId));
@@ -35,7 +37,8 @@ async function fetchCommentsForVideo(videoId: number) {
     if (r.comment.parentId) {
       if (!replyMap.has(r.comment.parentId)) replyMap.set(r.comment.parentId, []);
       replyMap.get(r.comment.parentId)!.push({
-        id: r.comment.id, text: r.comment.text, userId: r.comment.userId, username: r.username,
+        id: r.comment.id, text: r.comment.text, userId: r.comment.userId,
+        username: r.username, photoUrl: r.photoUrl ?? null,
         videoId: r.comment.videoId, parentId: r.comment.parentId, likeCount: r.comment.likeCount, replies: [],
         createdAt: r.comment.createdAt.toISOString(),
       });
@@ -43,7 +46,8 @@ async function fetchCommentsForVideo(videoId: number) {
   }
 
   return topLevel.map((r) => ({
-    id: r.comment.id, text: r.comment.text, userId: r.comment.userId, username: r.username,
+    id: r.comment.id, text: r.comment.text, userId: r.comment.userId,
+    username: r.username, photoUrl: r.photoUrl ?? null,
     videoId: r.comment.videoId, parentId: null, likeCount: r.comment.likeCount,
     replies: replyMap.get(r.comment.id) ?? [],
     createdAt: r.comment.createdAt.toISOString(),
@@ -69,6 +73,7 @@ router.post("/comments", requireAuth, async (req, res): Promise<void> => {
 
   res.status(201).json({
     id: comment.id, text: comment.text, userId: comment.userId, username: req.user!.username,
+    photoUrl: req.user!.photoUrl ?? null,
     videoId: comment.videoId, parentId: comment.parentId ?? null, likeCount: comment.likeCount, replies: [],
     createdAt: comment.createdAt.toISOString(),
   });
@@ -95,6 +100,7 @@ router.post("/videos/:id/comments", requireAuth, async (req, res): Promise<void>
 
   res.status(201).json({
     id: comment.id, text: comment.text, userId: comment.userId, username: req.user!.username,
+    photoUrl: req.user!.photoUrl ?? null,
     videoId: comment.videoId, parentId: comment.parentId ?? null, likeCount: comment.likeCount, replies: [],
     createdAt: comment.createdAt.toISOString(),
   });

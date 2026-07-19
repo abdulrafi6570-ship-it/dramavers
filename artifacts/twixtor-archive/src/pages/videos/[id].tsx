@@ -90,17 +90,31 @@ export default function VideoDetail() {
   async function handleFavorite() {
     if (!user) { setLocation("/login"); return; }
     if (!video) return;
-    if (video.isFavorited) await removeFavorite.mutateAsync({ videoId: id });
-    else await addFavorite.mutateAsync({ videoId: id });
-    invalidateVideo();
+    const wasFavorited = video.isFavorited;
+    qc.setQueryData(getGetVideoQueryKey(id), (old: any) =>
+      old ? { ...old, isFavorited: !old.isFavorited, favoriteCount: (old.favoriteCount ?? 0) + (old.isFavorited ? -1 : 1) } : old
+    );
+    try {
+      if (wasFavorited) await removeFavorite.mutateAsync({ videoId: id });
+      else await addFavorite.mutateAsync({ videoId: id });
+    } catch {
+      invalidateVideo();
+    }
   }
 
   async function handleBookmark() {
     if (!user) { setLocation("/login"); return; }
     if (!video) return;
-    if (video.isBookmarked) await removeBookmark.mutateAsync({ videoId: id });
-    else await addBookmark.mutateAsync({ videoId: id });
-    invalidateVideo();
+    const wasBookmarked = video.isBookmarked;
+    qc.setQueryData(getGetVideoQueryKey(id), (old: any) =>
+      old ? { ...old, isBookmarked: !old.isBookmarked } : old
+    );
+    try {
+      if (wasBookmarked) await removeBookmark.mutateAsync({ videoId: id });
+      else await addBookmark.mutateAsync({ videoId: id });
+    } catch {
+      invalidateVideo();
+    }
   }
 
   async function handleComment() {
@@ -297,14 +311,15 @@ export default function VideoDetail() {
                     return <p className="text-center text-sm text-white/20 py-4">Belum ada komentar</p>;
                   }
                   const topLevel = comments.filter((c: any) => !c.parentId);
-                  const replies = (parentId: number) => comments.filter((c: any) => c.parentId === parentId);
                   return topLevel.map((comment: any) => (
                     <div key={comment.id}>
                       {/* Top-level comment */}
                       <div className="group flex gap-3">
                         <Link href={`/users/${comment.userId}`}>
-                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors">
-                            {comment.username.charAt(0).toUpperCase()}
+                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
+                            {comment.photoUrl
+                              ? <img src={comment.photoUrl} alt={comment.username} className="w-full h-full object-cover" />
+                              : comment.username.charAt(0).toUpperCase()}
                           </div>
                         </Link>
                         <div className="flex-1 min-w-0">
@@ -368,13 +383,15 @@ export default function VideoDetail() {
                       )}
 
                       {/* Nested replies */}
-                      {replies(comment.id).length > 0 && (
+                      {comment.replies?.length > 0 && (
                         <div className="ml-11 mt-3 space-y-3 border-l border-white/[0.06] pl-3">
-                          {replies(comment.id).map((reply: any) => (
+                          {comment.replies.map((reply: any) => (
                             <div key={reply.id} className="group flex gap-2">
                               <Link href={`/users/${reply.userId}`}>
-                                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors">
-                                  {reply.username.charAt(0).toUpperCase()}
+                                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
+                                  {reply.photoUrl
+                                    ? <img src={reply.photoUrl} alt={reply.username} className="w-full h-full object-cover" />
+                                    : reply.username.charAt(0).toUpperCase()}
                                 </div>
                               </Link>
                               <div className="flex-1 min-w-0">

@@ -8,6 +8,7 @@ export interface AuthUser {
   username: string;
   role: "user" | "admin";
   verified: boolean;
+  photoUrl: string | null;
 }
 
 declare global {
@@ -37,7 +38,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       res.status(401).json({ error: "User not found" });
       return;
     }
-    req.user = { id: user.id, username: user.username, role: user.role, verified: user.verified };
+    req.user = { id: user.id, username: user.username, role: user.role, verified: user.verified, photoUrl: user.photoUrl ?? null };
     next();
   } catch {
     res.status(401).json({ error: "Invalid token" });
@@ -57,7 +58,7 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
     if (!error && supaUser) {
       const [user] = await db.select().from(usersTable).where(eq(usersTable.supabaseId, supaUser.id));
       if (user) {
-        req.user = { id: user.id, username: user.username, role: user.role, verified: user.verified };
+        req.user = { id: user.id, username: user.username, role: user.role, verified: user.verified, photoUrl: user.photoUrl ?? null };
       }
     }
   } catch {
