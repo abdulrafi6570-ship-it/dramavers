@@ -30,6 +30,7 @@ export default function VideoDetail() {
   const [replyText, setReplyText] = useState("");
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [videoLoading, setVideoLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { data: video, isLoading } = useGetVideo(id, { query: { enabled: !!id, queryKey: getGetVideoQueryKey(id) } });
@@ -234,7 +235,19 @@ export default function VideoDetail() {
                       setVideoAspect(v.videoWidth / v.videoHeight);
                     }
                   }}
+                  onCanPlay={() => setVideoLoading(false)}
+                  onWaiting={() => setVideoLoading(true)}
+                  onPlaying={() => setVideoLoading(false)}
                 />
+                {videoLoading && downloadProgress === null && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black">
+                    <div className="relative w-10 h-10">
+                      <div className="absolute inset-0 rounded-full border-2 border-white/10" />
+                      <div className="absolute inset-0 rounded-full border-2 border-t-white border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+                    </div>
+                    <p className="text-white/40 text-xs">Memuat video...</p>
+                  </div>
+                )}
                 {downloadProgress !== null && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm">
                     <div className="relative w-20 h-20">
