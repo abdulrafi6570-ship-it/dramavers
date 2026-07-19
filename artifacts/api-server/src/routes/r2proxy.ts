@@ -24,8 +24,9 @@ router.use(async (req: Request, res: Response): Promise<void> => {
       Key: key,
     });
     const obj = await getClient().send(cmd);
-    res.setHeader("Content-Type", obj.ContentType ?? "image/jpeg");
+    res.setHeader("Content-Type", obj.ContentType ?? "video/mp4");
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    if (obj.ContentLength) res.setHeader("Content-Length", obj.ContentLength);
     (obj.Body as Readable).pipe(res);
   } catch {
     res.status(404).json({ error: "Not found" });

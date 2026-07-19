@@ -29,6 +29,7 @@ export default function VideoDetail() {
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
   const [replyText, setReplyText] = useState("");
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { data: video, isLoading } = useGetVideo(id, { query: { enabled: !!id, queryKey: getGetVideoQueryKey(id) } });
@@ -63,12 +64,35 @@ export default function VideoDetail() {
   async function execDownload() {
     try {
       const res = await downloadVideo.mutateAsync({ id });
+      if (!res.videoUrl) throw new Error("No URL");
+      setDownloadProgress(0);
+      const response = await fetch(res.videoUrl);
+      if (!response.ok || !response.body) throw new Error("Fetch gagal");
+      const contentLength = response.headers.get("content-length");
+      const total = contentLength ? parseInt(contentLength, 10) : null;
+      const reader = response.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (total) setDownloadProgress(Math.round((received / total) * 100));
+      }
+      const blob = new Blob(chunks, { type: "video/mp4" });
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = res.videoUrl;
-      link.download = res.title;
+      link.href = blobUrl;
+      link.download = (res.title || "video") + ".mp4";
+      document.body.appendChild(link);
       link.click();
-      toast({ title: "Download dimulai!" });
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      setDownloadProgress(null);
+      toast({ title: "Download selesai!" });
     } catch {
+      setDownloadProgress(null);
       toast({ title: "Download gagal", variant: "destructive" });
     }
   }
@@ -233,10 +257,10 @@ export default function VideoDetail() {
                 <Button
                   onClick={handleDownloadClick}
                   className="flex-1 sm:flex-none bg-white hover:bg-white/90 text-black font-semibold"
-                  disabled={downloadVideo.isPending}
+                  disabled={downloadVideo.isPending || downloadProgress !== null}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  {downloadProgress !== null ? `${downloadProgress}%` : "Download"}
                 </Button>
                 <Button variant="outline" onClick={handleCopy} className="border-white/15 text-white hover:bg-white/8">
                   <Copy className="h-4 w-4 mr-2" />
@@ -488,6 +512,24 @@ export default function VideoDetail() {
           </div>
         </div>
       </main>
+
+      {/* Download Progress Bar */}
+      {downloadProgress !== null && (
+        <div className="fixed bottom-24 left-4 right-4 z-50 flex justify-center">
+          <div className="bg-black/90 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-2xl w-full max-w-sm">
+            <div className="flex justify-between items-center text-sm text-white mb-2">
+              <span className="font-medium">Mengunduh video...</span>
+              <span className="text-primary font-bold">{downloadProgress}%</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-200"
+                style={{ width: `${downloadProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Download Modal */}
       <Dialog open={showDownloadModal} onOpenChange={setShowDownloadModal}>
