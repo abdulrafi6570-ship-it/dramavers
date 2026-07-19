@@ -137,7 +137,8 @@ export default function VideoDetail() {
       await createComment.mutateAsync({ data: { videoId: id, text: replyText, parentId: currentReplyTo.id } });
       setReplyText("");
       setReplyTo(null);
-      invalidateComments();
+      await qc.refetchQueries({ queryKey: getListCommentsQueryKey({ videoId: id }) });
+      toast({ title: "Balasan terkirim!" });
     } catch {
       toast({ title: "Gagal mengirim balasan", variant: "destructive" });
     }
