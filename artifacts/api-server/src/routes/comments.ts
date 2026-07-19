@@ -9,7 +9,7 @@ const VideoIdParam = z.object({ id: z.coerce.number().int().positive() });
 const CommentBodyWithVideo = z.object({
   videoId: z.coerce.number().int().positive(),
   text: z.string().min(1).max(2000),
-  parentId: z.number().int().optional(),
+  parentId: z.coerce.number().int().optional().nullable(),
 });
 
 const router: IRouter = Router();
@@ -88,7 +88,7 @@ router.get("/videos/:id/comments", optionalAuth, async (req, res): Promise<void>
 router.post("/videos/:id/comments", requireAuth, async (req, res): Promise<void> => {
   const params = VideoIdParam.safeParse({ id: Number(req.params.id) });
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
-  const parsed = z.object({ text: z.string().min(1).max(2000), parentId: z.number().int().optional() }).safeParse(req.body);
+  const parsed = z.object({ text: z.string().min(1).max(2000), parentId: z.coerce.number().int().optional().nullable() }).safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
   const [comment] = await db.insert(commentsTable).values({
