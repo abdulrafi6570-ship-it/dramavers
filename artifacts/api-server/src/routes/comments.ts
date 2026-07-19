@@ -106,6 +106,18 @@ router.post("/videos/:id/comments", requireAuth, async (req, res): Promise<void>
   });
 });
 
+
+router.patch("/comments/:id", requireAuth, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  const parsed = z.object({ text: z.string().min(1).max(2000) }).safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: "Invalid text" }); return; }
+  const rows = await db.select().from(commentsTable).where(eq(commentsTable.id, id));
+  if (!rows.length) { res.status(404).json({ error: "Not found" }); return; }
+  if (rows[0].userId !== req.user!.id && req.user!.role !== "admin") { res.status(403).json({ error: "Forbidden" }); return; }
+  const [updated] = await db.update(commentsTable).set({ text: parsed.data.text }).where(eq(commentsTable.id, id)).returning();
+  res.json({ id: updated.id, text: updated.text });
+});
+
 router.delete("/comments/:id", requireAuth, async (req, res): Promise<void> => {
   const params = DeleteCommentParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }

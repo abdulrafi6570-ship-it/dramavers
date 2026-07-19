@@ -29,6 +29,10 @@ export default function VideoDetail() {
   const [commentText, setCommentText] = useState("");
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [longPressMenu, setLongPressMenu] = useState<{ id: number; userId: number; text: string } | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const lpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
   const [videoLoading, setVideoLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,6 +57,43 @@ export default function VideoDetail() {
 
   const invalidateVideo = () => qc.invalidateQueries({ queryKey: getGetVideoQueryKey(id) });
   const invalidateComments = () => qc.invalidateQueries({ queryKey: getListCommentsQueryKey({ videoId: id }) });
+
+  function startLP(lpId: number, lpUserId: number, lpText: string) {
+    lpTimer.current = setTimeout(() => {
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(30);
+      setLongPressMenu({ id: lpId, userId: lpUserId, text: lpText });
+    }, 500);
+  }
+  function cancelLP() {
+    if (lpTimer.current) { clearTimeout(lpTimer.current); lpTimer.current = null; }
+  }
+  function removeFromCache(commentId: number) {
+    qc.setQueryData(getListCommentsQueryKey({ videoId: id }), (old: any) => {
+      if (!old) return old;
+      return old.filter((cm: any) => cm.id !== commentId)
+        .map((cm: any) => ({ ...cm, replies: (cm.replies ?? []).filter((r: any) => r.id !== commentId) }));
+    });
+  }
+  async function handleEditSave() {
+    if (!editingId || !editText.trim()) return;
+    const eid = editingId; const etxt = editText;
+    try {
+      const res = await fetch(`/api/comments/${eid}`, {
+        method: "PATCH", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: etxt }),
+      });
+      if (!res.ok) throw new Error();
+      qc.setQueryData(getListCommentsQueryKey({ videoId: id }), (old: any) => {
+        if (!old) return old;
+        return old.map((cm: any) => {
+          if (cm.id === eid) return { ...cm, text: etxt };
+          return { ...cm, replies: (cm.replies ?? []).map((r: any) => r.id === eid ? { ...r, text: etxt } : r) };
+        });
+      });
+      setEditingId(null); setEditText(""); setLongPressMenu(null);
+    } catch { toast({ title: "Gagal edit komentar", variant: "destructive" }); }
+  }
 
   async function handleDownloadClick() {
     if (!user) { setLocation("/login"); return; }
@@ -348,9 +389,15 @@ export default function VideoDetail() {
                     }
                   });
                   return topLevel.map((comment: any) => (
-                    <div key={comment.id}>
+                    <div
+                      key={comment.id}
+                      onPointerDown={() => startLP(comment.id, comment.userId, comment.text)}
+                      onPointerUp={cancelLP}
+                      onPointerCancel={cancelLP}
+                      onPointerMove={cancelLP}
+                    >
                       {/* Top-level comment */}
-                      <div className="group flex gap-3">
+                      <div className="flex gap-3">
                         <Link href={`/users/${comment.userId}`}>
                           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
                             {comment.photoUrl
@@ -364,16 +411,19 @@ export default function VideoDetail() {
                               {comment.username}
                             </Link>
                             <span className="text-xs text-white/25">{new Date(comment.createdAt).toLocaleDateString("id-ID")}</span>
-                            {user && (user.id === comment.userId || user.role === "admin") && (
-                              <button
-                                onClick={() => { deleteComment.mutate({ id: comment.id }); invalidateComments(); }}
-                                className="ml-auto opacity-0 group-hover:opacity-100 text-white/25 hover:text-red-400 transition-all"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                            )}
+                            {/* hapus/edit via long press */}
                           </div>
-                          <p className="text-sm text-white/55 mt-0.5">{comment.text}</p>
+                          {editingId === comment.id ? (
+                            <div className="mt-1 space-y-1.5">
+                              <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="bg-white/5 border-white/10 text-white text-sm resize-none" rows={2} autoFocus />
+                              <div className="flex gap-2">
+                                <Button onClick={handleEditSave} size="sm" className="bg-white text-black text-xs h-6 px-2">Simpan</Button>
+                                <Button onClick={() => { setEditingId(null); setEditText(""); }} size="sm" variant="ghost" className="text-white/40 text-xs h-6 px-2">Batal</Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-white/55 mt-0.5">{comment.text}</p>
+                          )}
                           {user && (
                             <button
                               onClick={() => { setReplyTo({ id: comment.id, username: comment.username }); setReplyText(""); }}
@@ -427,7 +477,14 @@ export default function VideoDetail() {
                         return merged.length > 0 && (
                         <div className="ml-11 mt-3 space-y-3 border-l border-white/[0.06] pl-3">
                           {merged.map((reply: any) => (
-                            <div key={reply.id} className="group flex gap-2">
+                            <div
+                              key={reply.id}
+                              className="flex gap-2"
+                              onPointerDown={() => startLP(reply.id, reply.userId, reply.text)}
+                              onPointerUp={cancelLP}
+                              onPointerCancel={cancelLP}
+                              onPointerMove={cancelLP}
+                            >
                               <Link href={`/users/${reply.userId}`}>
                                 <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
                                   {reply.photoUrl
@@ -441,16 +498,19 @@ export default function VideoDetail() {
                                     {reply.username}
                                   </Link>
                                   <span className="text-[10px] text-white/20">{new Date(reply.createdAt).toLocaleDateString("id-ID")}</span>
-                                  {user && (user.id === reply.userId || user.role === "admin") && (
-                                    <button
-                                      onClick={() => { deleteComment.mutate({ id: reply.id }); invalidateComments(); }}
-                                      className="ml-auto opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all"
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </button>
-                                  )}
+                                  {/* hapus/edit via long press */}
                                 </div>
-                                <p className="text-xs text-white/50 mt-0.5">{reply.text}</p>
+                                {editingId === reply.id ? (
+                                  <div className="mt-1 space-y-1.5">
+                                    <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="bg-white/5 border-white/10 text-white text-xs resize-none" rows={2} autoFocus />
+                                    <div className="flex gap-2">
+                                      <Button onClick={handleEditSave} size="sm" className="bg-white text-black text-xs h-6 px-2">Simpan</Button>
+                                      <Button onClick={() => { setEditingId(null); setEditText(""); }} size="sm" variant="ghost" className="text-white/40 text-xs h-6 px-2">Batal</Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-xs text-white/50 mt-0.5">{reply.text}</p>
+                                )}
                               </div>
                             </div>
                           ))}
