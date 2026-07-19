@@ -31,10 +31,14 @@ export default function AdminCodes() {
 
   async function handleCreate() {
     if (!newCode.trim()) return;
-    await createCode.mutateAsync({ data: { code: newCode, expiredAt: expiredAt || undefined } });
-    setNewCode(""); setExpiredAt("");
-    invalidate();
-    toast({ title: "Access code created" });
+    try {
+      await createCode.mutateAsync({ data: { code: newCode, expiredAt: expiredAt || undefined } });
+      setNewCode(""); setExpiredAt("");
+      invalidate();
+      toast({ title: "Access code created" });
+    } catch (err: any) {
+      toast({ title: "Gagal tambah kode", description: err?.message ?? "Server error", variant: "destructive" });
+    }
   }
 
   async function handleDelete(id: number) {

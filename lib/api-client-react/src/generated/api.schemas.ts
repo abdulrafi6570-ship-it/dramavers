@@ -419,7 +419,8 @@ export interface AccessCode {
 }
 
 export interface AccessCodeCreate {
-  count?: number;
+  code: string;
+  expiredAt?: string;
 }
 
 export interface Ad {

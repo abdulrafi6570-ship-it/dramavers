@@ -858,7 +858,8 @@ export const ListAccessCodesResponse = zod.array(ListAccessCodesResponseItem)
 
 
 export const CreateAccessCodeBody = zod.object({
-  "count": zod.number().optional()
+  "code": zod.string().min(1),
+  "expiredAt": zod.string().optional()
 })
 
 
