@@ -409,7 +409,7 @@ export default function VideoDetail() {
                           ) : (
                             <p className="text-sm text-white/55 mt-0.5">{comment.text}</p>
                           )}
-                          {editingId !== comment.id && user && (user.id === comment.userId || user.role === "admin") && (
+                          {editingId !== comment.id && user && Number(user.id) === Number(comment.userId) && (
                             <div className="flex gap-3 mt-1.5">
                               <button onClick={() => { setEditingId(comment.id); setEditText(comment.text); }} className="flex items-center gap-1 text-white/25 hover:text-white/60 transition-colors text-xs">
                                 <Pencil className="h-3 w-3" /> Edit
@@ -502,7 +502,7 @@ export default function VideoDetail() {
                                 ) : (
                                   <p className="text-xs text-white/50 mt-0.5">{reply.text}</p>
                                 )}
-                                {editingId !== reply.id && user && (user.id === reply.userId || user.role === "admin") && (
+                                {editingId !== reply.id && user && Number(user.id) === Number(reply.userId) && (
                                   <div className="flex gap-3 mt-1.5">
                                     <button onClick={() => { setEditingId(reply.id); setEditText(reply.text); }} className="flex items-center gap-1 text-white/25 hover:text-white/60 transition-colors text-xs">
                                       <Pencil className="h-3 w-3" /> Edit
