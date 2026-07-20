@@ -391,6 +391,8 @@ export default function VideoDetail() {
                   return topLevel.map((comment: any) => (
                     <div
                       key={comment.id}
+                      className="select-none"
+                      onContextMenu={e => e.preventDefault()}
                       onPointerDown={() => startLP(comment.id, comment.userId, comment.text)}
                       onPointerUp={cancelLP}
                       onPointerCancel={cancelLP}
@@ -479,7 +481,8 @@ export default function VideoDetail() {
                           {merged.map((reply: any) => (
                             <div
                               key={reply.id}
-                              className="flex gap-2"
+                              className="flex gap-2 select-none"
+                              onContextMenu={e => e.preventDefault()}
                               onPointerDown={() => startLP(reply.id, reply.userId, reply.text)}
                               onPointerUp={cancelLP}
                               onPointerCancel={cancelLP}
