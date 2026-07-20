@@ -647,15 +647,6 @@ export default function VideoDetail() {
           )}
         </DialogContent>
       </Dialog>
-      {/* Long press bottom sheet */}
-              <button
-                className="w-full text-left px-4 py-3.5 rounded-xl text-white/35 active:bg-white/5 transition-colors text-sm"
-                onPointerDown={() => setLongPressMenu(null)}
-              >Tutup</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
