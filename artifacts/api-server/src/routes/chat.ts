@@ -6,50 +6,44 @@ import { z } from "zod";
 
 const router: IRouter = Router();
 
-function fmtMsg(r: any, replyMap: Map<number, any>, photoMap: Map<number, string | null>) {
-  const reply = r.replyToId ? replyMap.get(r.replyToId) : null;
-  return {
-    id: r.id,
-    userId: r.userId,
-    username: r.username ?? "Anonim",
-    photoUrl: r.userId ? (photoMap.get(r.userId) ?? r.photoUrl ?? null) : null,
-    message: r.deleted ? "" : r.message,
-    deleted: r.deleted ?? false,
-    replyToId: r.replyToId ?? null,
-    replyTo: reply ? {
-      id: reply.id,
-      username: reply.username ?? "Anonim",
-      message: reply.deleted ? "" : reply.message,
-      deleted: reply.deleted ?? false,
-    } : null,
-    createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : r.createdAt,
-  };
-}
-
 router.get("/chat", optionalAuth, async (_req, res): Promise<void> => {
   const rows = await db.select()
     .from(chatMessagesTable)
     .orderBy(desc(chatMessagesTable.createdAt))
     .limit(100);
+  const msgs = rows.reverse();
 
-  const reversed = rows.reverse();
-
-  // Ambil foto profil terbaru dari tabel users (bukan dari cache pesan)
-  const userIds = [...new Set(reversed.filter(r => r.userId).map(r => r.userId as number))];
+  const userIds = [...new Set(msgs.filter(r => r.userId).map(r => r.userId as number))];
   const userRows = userIds.length
     ? await db.select({ id: usersTable.id, photoUrl: usersTable.photoUrl })
-        .from(usersTable)
-        .where(inArray(usersTable.id, userIds))
+        .from(usersTable).where(inArray(usersTable.id, userIds))
     : [];
   const photoMap = new Map(userRows.map(u => [u.id, u.photoUrl ?? null]));
 
-  const replyIds = reversed.filter(r => r.replyToId).map(r => r.replyToId as number);
+  const replyIds = msgs.filter(r => r.replyToId).map(r => r.replyToId as number);
   const replyRows = replyIds.length
     ? await db.select().from(chatMessagesTable).where(inArray(chatMessagesTable.id, replyIds))
     : [];
   const replyMap = new Map(replyRows.map(r => [r.id, r]));
 
-  res.json(reversed.map(r => fmtMsg(r, replyMap, photoMap)));
+  res.json(msgs.map(r => {
+    const reply = r.replyToId ? replyMap.get(r.replyToId) : null;
+    return {
+      id: r.id,
+      userId: r.userId,
+      username: r.username ?? "Anonim",
+      photoUrl: r.userId ? (photoMap.get(r.userId) ?? null) : null,
+      message: r.deleted ? "" : r.message,
+      deleted: r.deleted ?? false,
+      replyToId: r.replyToId ?? null,
+      replyTo: reply ? {
+        id: reply.id,
+        username: reply.username ?? "Anonim",
+        message: reply.deleted ? "" : reply.message,
+      } : null,
+      createdAt: r.createdAt.toISOString(),
+    };
+  }));
 });
 
 const SendBody = z.object({
@@ -76,35 +70,26 @@ router.post("/chat", requireAuth, async (req, res): Promise<void> => {
   if (row.replyToId) {
     const [rr] = await db.select().from(chatMessagesTable)
       .where(eq(chatMessagesTable.id, row.replyToId)).limit(1);
-    if (rr) replyTo = {
-      id: rr.id,
-      username: rr.username ?? "Anonim",
-      message: rr.deleted ? "" : rr.message,
-      deleted: rr.deleted ?? false,
-    };
+    if (rr) replyTo = { id: rr.id, username: rr.username ?? "Anonim", message: rr.deleted ? "" : rr.message };
   }
 
-  const replyMap = new Map<number, any>();
-  if (row.replyToId && replyTo) replyMap.set(row.replyToId, replyTo);
-  const photoMap = new Map([[req.user!.id, userRow?.photoUrl ?? null]]);
-  res.status(201).json(fmtMsg(row, replyMap, photoMap));
+  res.status(201).json({
+    id: row.id, userId: row.userId, username: row.username ?? "Anonim",
+    photoUrl: userRow?.photoUrl ?? null, message: row.message, deleted: false,
+    replyToId: row.replyToId ?? null, replyTo, createdAt: row.createdAt.toISOString(),
+  });
 });
 
 router.delete("/chat/:id", requireAuth, async (req, res): Promise<void> => {
   const msgId = Number(req.params.id);
   if (!Number.isFinite(msgId)) { res.status(400).json({ error: "ID tidak valid" }); return; }
-
   const [msg] = await db.select().from(chatMessagesTable)
     .where(eq(chatMessagesTable.id, msgId)).limit(1);
   if (!msg) { res.status(404).json({ error: "Pesan tidak ditemukan" }); return; }
-
-  if (msg.userId !== req.user!.id && req.user!.role !== "admin") {
+  if (msg.userId !== req.user!.id && (req.user as any).role !== "admin") {
     res.status(403).json({ error: "Tidak diizinkan" }); return;
   }
-
-  await db.update(chatMessagesTable)
-    .set({ deleted: true })
-    .where(eq(chatMessagesTable.id, msgId));
+  await db.update(chatMessagesTable).set({ deleted: true }).where(eq(chatMessagesTable.id, msgId));
   res.json({ ok: true });
 });
 
