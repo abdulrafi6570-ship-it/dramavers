@@ -41,7 +41,9 @@ export default function GlobalChat() {
     if (!input.trim() || sending || !user) return;
     const text = input.trim();
     const currentReply = replyTo;
-    setInput(""); setReplyTo(null); setSending(true);
+    setInput("");
+    setReplyTo(null);
+    setSending(true);
     try {
       const token = localStorage.getItem("twixtor_token");
       const res = await fetch("/api/chat", {
@@ -49,7 +51,10 @@ export default function GlobalChat() {
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ message: text, ...(currentReply ? { replyToId: currentReply.id } : {}) }),
       });
-      if (res.ok) { const msg = await res.json(); setMessages(prev => [...prev, msg]); }
+      if (res.ok) {
+        const msg = await res.json();
+        setMessages(prev => [...prev, msg]);
+      }
     } finally { setSending(false); }
   };
 
@@ -67,7 +72,8 @@ export default function GlobalChat() {
     if (e.key === "Escape") setReplyTo(null);
   };
 
-  const fmt = (iso: string) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -80,7 +86,6 @@ export default function GlobalChat() {
             <p className="text-[11px] text-white/30">Semua pengguna bisa chat di sini</p>
           </div>
         </div>
-
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-32 md:pb-4">
           {loading ? (
             <div className="flex justify-center py-12">
@@ -114,7 +119,7 @@ export default function GlobalChat() {
                     <div className={`px-2 py-1 rounded-lg border-l-2 border-white/25 bg-white/[0.04] text-xs text-white/35 max-w-full ${isMe ? "border-l-0 border-r-2 text-right" : ""}`}>
                       <span className="text-white/50 font-medium">@{msg.replyTo.username}</span>
                       {" · "}
-                      <span className="truncate">{msg.replyTo.message || "pesan dihapus"}</span>
+                      <span>{msg.replyTo.message || "pesan dihapus"}</span>
                     </div>
                   )}
                   <div className={`px-3 py-2 rounded-2xl text-sm leading-snug ${
@@ -145,7 +150,6 @@ export default function GlobalChat() {
           })}
           <div ref={bottomRef} />
         </div>
-
         <div className="fixed bottom-[4.5rem] md:bottom-0 left-0 right-0 md:relative border-t border-white/[0.06] bg-background px-4 py-3 flex-shrink-0 max-w-2xl mx-auto w-full">
           {!user ? (
             <div className="text-center text-sm text-white/30 py-2">
