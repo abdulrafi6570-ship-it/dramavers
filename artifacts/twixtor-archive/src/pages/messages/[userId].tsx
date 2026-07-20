@@ -132,7 +132,7 @@ export default function ChatThread() {
                         className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
                           m.deleted ? "bg-white/[0.03] text-white/20 italic border border-white/[0.04]"
                           : mine ? "rounded-br-sm text-white"
-                          : "glass-panel text-white/90 rounded-bl-sm"
+                          : "bg-white/10 border border-white/[0.08] text-white/90 rounded-bl-sm"
                         }`}
                       >
                         {m.deleted ? "pesan dihapus" : m.message}
