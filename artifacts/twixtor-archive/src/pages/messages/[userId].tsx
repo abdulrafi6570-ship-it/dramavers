@@ -57,7 +57,7 @@ export default function ChatThread() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: text }),
       });
-      if (res.ok) setMessages(prev => [...prev, await res.json()]);
+      if (res.ok) const _d = await res.json(); setMessages(prev => [...prev, _d]);
     } finally { setSending(false); }
   };
 
