@@ -155,7 +155,7 @@ export default function ChatThread() {
               {messages.map((m) => {
                 const mine = user ? String(m.senderId) === String(user.id) : m.isMine;
                 return (
-                  <div key={m.id} className={`flex items-end gap-2 group ${mine ? "justify-end" : "justify-start"}`}>
+                  <div key={m.id} className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}>
                     {!mine && (
                       <div className="w-6 h-6 rounded-full overflow-hidden glass-panel-strong flex items-center justify-center text-[10px] font-bold text-white shrink-0">
                         {partnerPhoto
@@ -192,7 +192,7 @@ export default function ChatThread() {
                       <div className={`flex items-center gap-1.5 px-1 ${mine ? "flex-row-reverse" : ""}`}>
                         <span className="text-[10px] text-white/20">{fmt(m.createdAt)}</span>
                         {!m.deleted && (
-                          <div className="hidden group-hover:flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => handleReplyClick(m)}
                               className="text-white/20 hover:text-white/50 transition-colors"

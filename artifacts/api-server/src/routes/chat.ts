@@ -6,13 +6,13 @@ import { z } from "zod";
 
 const router: IRouter = Router();
 
-function fmtMsg(r: any, replyMap: Map<number, any>) {
+function fmtMsg(r: any, replyMap: Map<number, any>, photoMap: Map<number, string | null>) {
   const reply = r.replyToId ? replyMap.get(r.replyToId) : null;
   return {
     id: r.id,
     userId: r.userId,
     username: r.username ?? "Anonim",
-    photoUrl: r.photoUrl ?? null,
+    photoUrl: r.userId ? (photoMap.get(r.userId) ?? r.photoUrl ?? null) : null,
     message: r.deleted ? "" : r.message,
     deleted: r.deleted ?? false,
     replyToId: r.replyToId ?? null,
@@ -33,13 +33,23 @@ router.get("/chat", optionalAuth, async (_req, res): Promise<void> => {
     .limit(100);
 
   const reversed = rows.reverse();
+
+  // Ambil foto profil terbaru dari tabel users (bukan dari cache pesan)
+  const userIds = [...new Set(reversed.filter(r => r.userId).map(r => r.userId as number))];
+  const userRows = userIds.length
+    ? await db.select({ id: usersTable.id, photoUrl: usersTable.photoUrl })
+        .from(usersTable)
+        .where(inArray(usersTable.id, userIds))
+    : [];
+  const photoMap = new Map(userRows.map(u => [u.id, u.photoUrl ?? null]));
+
   const replyIds = reversed.filter(r => r.replyToId).map(r => r.replyToId as number);
   const replyRows = replyIds.length
     ? await db.select().from(chatMessagesTable).where(inArray(chatMessagesTable.id, replyIds))
     : [];
   const replyMap = new Map(replyRows.map(r => [r.id, r]));
 
-  res.json(reversed.map(r => fmtMsg(r, replyMap)));
+  res.json(reversed.map(r => fmtMsg(r, replyMap, photoMap)));
 });
 
 const SendBody = z.object({
@@ -76,7 +86,8 @@ router.post("/chat", requireAuth, async (req, res): Promise<void> => {
 
   const replyMap = new Map<number, any>();
   if (row.replyToId && replyTo) replyMap.set(row.replyToId, replyTo);
-  res.status(201).json(fmtMsg(row, replyMap));
+  const photoMap = new Map([[req.user!.id, userRow?.photoUrl ?? null]]);
+  res.status(201).json(fmtMsg(row, replyMap, photoMap));
 });
 
 router.delete("/chat/:id", requireAuth, async (req, res): Promise<void> => {

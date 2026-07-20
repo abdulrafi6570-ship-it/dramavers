@@ -136,13 +136,24 @@ export default function GlobalChat() {
             messages.map((msg) => {
               const isMe = !!user && msg.userId !== null && Number(msg.userId) === Number(user.id);
               return (
-                <div key={msg.id} className={`flex gap-2.5 group ${isMe ? "flex-row-reverse" : ""}`}>
-                  {/* Avatar */}
+                <div key={msg.id} className={`flex gap-2.5 ${isMe ? "flex-row-reverse" : ""}`}>
+                  {/* Avatar dengan foto profil */}
                   <Link href={msg.userId ? `/users/${msg.userId}` : "#"}>
                     <div className="w-7 h-7 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center text-[11px] font-bold text-white/60 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity overflow-hidden">
-                      {msg.photoUrl
-                        ? <img src={msg.photoUrl} alt={msg.username} className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
-                        : msg.username.charAt(0).toUpperCase()}
+                      {msg.photoUrl ? (
+                        <img
+                          src={msg.photoUrl}
+                          alt={msg.username}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const el = e.currentTarget as HTMLImageElement;
+                            el.style.display = "none";
+                            if (el.parentElement) el.parentElement.textContent = msg.username.charAt(0).toUpperCase();
+                          }}
+                        />
+                      ) : (
+                        msg.username.charAt(0).toUpperCase()
+                      )}
                     </div>
                   </Link>
 
@@ -157,7 +168,7 @@ export default function GlobalChat() {
 
                     {/* Reply quote */}
                     {msg.replyTo && (
-                      <div className={`px-2 py-1 rounded-lg border-l-2 border-white/25 bg-white/[0.04] text-xs text-white/35 max-w-full ${isMe ? "text-right border-l-0 border-r-2" : ""}`}>
+                      <div className={`px-2 py-1 rounded-lg border-l-2 border-white/25 bg-white/[0.04] text-xs text-white/35 max-w-full ${isMe ? "border-l-0 border-r-2 text-right" : ""}`}>
                         <span className="text-white/50 font-medium">@{msg.replyTo.username}</span>
                         {" · "}
                         <span className="truncate">
@@ -177,30 +188,30 @@ export default function GlobalChat() {
                       {msg.deleted ? "chat telah di hapus" : msg.message}
                     </div>
 
-                    {/* Time + action buttons */}
-                    <div className={`flex items-center gap-2 px-1 ${isMe ? "flex-row-reverse" : ""}`}>
-                      <span className="text-[10px] text-white/20">{fmt(msg.createdAt)}</span>
-                      {!msg.deleted && (
-                        <div className="hidden group-hover:flex items-center gap-1.5">
+                    {/* Waktu + tombol aksi — selalu visible di mobile */}
+                    {!msg.deleted && (
+                      <div className={`flex items-center gap-2 px-1 mt-0.5 ${isMe ? "flex-row-reverse" : ""}`}>
+                        <span className="text-[10px] text-white/20">{fmt(msg.createdAt)}</span>
+                        {/* Tombol reply — selalu tampil */}
+                        <button
+                          onClick={() => handleReplyClick(msg)}
+                          className="text-white/20 hover:text-white/50 active:text-white/60 transition-colors"
+                          title="Balas"
+                        >
+                          <Reply className="h-3 w-3" />
+                        </button>
+                        {/* Tombol hapus — hanya untuk pesan sendiri, selalu tampil */}
+                        {isMe && (
                           <button
-                            onClick={() => handleReplyClick(msg)}
-                            className="text-white/25 hover:text-white/55 transition-colors"
-                            title="Balas"
+                            onClick={() => handleDelete(msg.id)}
+                            className="text-white/20 hover:text-red-400 active:text-red-500 transition-colors"
+                            title="Hapus"
                           >
-                            <Reply className="h-3 w-3" />
+                            <Trash2 className="h-3 w-3" />
                           </button>
-                          {isMe && (
-                            <button
-                              onClick={() => handleDelete(msg.id)}
-                              className="text-white/25 hover:text-red-400 transition-colors"
-                              title="Hapus"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -228,7 +239,7 @@ export default function GlobalChat() {
                   </div>
                   <button
                     onClick={() => setReplyTo(null)}
-                    className="text-white/20 hover:text-white/50 flex-shrink-0 ml-1"
+                    className="text-white/20 hover:text-white/50 flex-shrink-0"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
