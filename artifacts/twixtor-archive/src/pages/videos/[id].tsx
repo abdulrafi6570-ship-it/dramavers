@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDownloadManager } from "@/contexts/DownloadContext";
 import { Link, useParams, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X } from "lucide-react";
+import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export default function VideoDetail() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
-  const [videoLoading, setVideoLoading] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { data: video, isLoading } = useGetVideo(id, { query: { enabled: !!id, queryKey: getGetVideoQueryKey(id) } });
@@ -80,7 +80,7 @@ export default function VideoDetail() {
           return { ...cm, replies: (cm.replies ?? []).map((r: any) => r.id === eid ? { ...r, text: etxt } : r) };
         });
       });
-      setEditingId(null); setEditText(""); setLongPressMenu(null);
+      setEditingId(null); setEditText("");
     } catch { toast({ title: "Gagal edit komentar", variant: "destructive" }); }
   }
 
