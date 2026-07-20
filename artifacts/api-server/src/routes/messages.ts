@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, privateMessagesTable, usersTable, userFollowsTable } from "@workspace/db";
-import { and, eq, or, desc, sql } from "drizzle-orm";
+import { and, eq, or, desc, sql, inArray } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 import { z } from "zod";
 
@@ -19,6 +19,26 @@ async function canChat(currentUserId: number, targetUserId: number): Promise<boo
     .where(and(eq(userFollowsTable.followerId, targetUserId), eq(userFollowsTable.followingId, currentUserId)))
     .limit(1);
   return Boolean(aFollowsB && bFollowsA);
+}
+
+function fmtMsg(r: any, replyMap: Map<number, any>, me: number) {
+  const reply = r.replyToId ? replyMap.get(r.replyToId) : null;
+  return {
+    id: r.id,
+    senderId: r.senderId,
+    recipientId: r.recipientId,
+    message: r.deleted ? "" : r.message,
+    deleted: r.deleted ?? false,
+    createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : r.createdAt,
+    isMine: r.senderId === me,
+    replyToId: r.replyToId ?? null,
+    replyTo: reply ? {
+      id: reply.id,
+      message: reply.deleted ? "" : reply.message,
+      deleted: reply.deleted ?? false,
+      isMine: reply.senderId === me,
+    } : null,
+  };
 }
 
 router.get("/messages/conversations", requireAuth, async (req, res): Promise<void> => {
@@ -93,44 +113,74 @@ router.get("/messages/:userId", requireAuth, async (req, res): Promise<void> => 
 
   await db.update(privateMessagesTable)
     .set({ read: true })
-    .where(and(eq(privateMessagesTable.senderId, targetId), eq(privateMessagesTable.recipientId, me), eq(privateMessagesTable.read, false)));
+    .where(and(
+      eq(privateMessagesTable.senderId, targetId),
+      eq(privateMessagesTable.recipientId, me),
+      eq(privateMessagesTable.read, false),
+    ));
 
-  res.json(rows.reverse().map((r) => ({
-    id: r.id,
-    senderId: r.senderId,
-    recipientId: r.recipientId,
-    message: r.message,
-    createdAt: r.createdAt.toISOString(),
-    isMine: r.senderId === me,
-  })));
+  const reversed = rows.reverse();
+  const replyIds = reversed.filter(r => r.replyToId).map(r => r.replyToId as number);
+  const replyRows = replyIds.length
+    ? await db.select().from(privateMessagesTable).where(inArray(privateMessagesTable.id, replyIds))
+    : [];
+  const replyMap = new Map(replyRows.map(r => [r.id, r]));
+
+  res.json(reversed.map(r => fmtMsg(r, replyMap, me)));
 });
 
-const SendMessageBody = z.object({ message: z.string().min(1).max(1000) });
+const SendBody = z.object({
+  message: z.string().min(1).max(1000),
+  replyToId: z.number().int().positive().optional(),
+});
 
 router.post("/messages/:userId", requireAuth, async (req, res): Promise<void> => {
   const targetId = Number(req.params.userId);
   if (!Number.isFinite(targetId)) { res.status(400).json({ error: "ID tidak valid" }); return; }
 
-  const parsed = SendMessageBody.safeParse(req.body);
+  const parsed = SendBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Pesan tidak valid" }); return; }
 
   const allowed = await canChat(req.user!.id, targetId);
   if (!allowed) { res.status(403).json({ error: "Kamu belum bisa chat dengan pengguna ini" }); return; }
 
+  const me = req.user!.id;
   const [row] = await db.insert(privateMessagesTable).values({
-    senderId: req.user!.id,
+    senderId: me,
     recipientId: targetId,
     message: parsed.data.message,
+    replyToId: parsed.data.replyToId ?? null,
   }).returning();
 
-  res.status(201).json({
-    id: row.id,
-    senderId: row.senderId,
-    recipientId: row.recipientId,
-    message: row.message,
-    createdAt: row.createdAt.toISOString(),
-    isMine: true,
-  });
+  let replyTo = null;
+  if (row.replyToId) {
+    const [rr] = await db.select().from(privateMessagesTable)
+      .where(eq(privateMessagesTable.id, row.replyToId)).limit(1);
+    if (rr) replyTo = rr;
+  }
+
+  const replyMap = new Map<number, any>();
+  if (row.replyToId && replyTo) replyMap.set(row.replyToId, replyTo);
+  res.status(201).json(fmtMsg(row, replyMap, me));
+});
+
+// Soft-delete a DM message
+router.delete("/messages/msg/:id", requireAuth, async (req, res): Promise<void> => {
+  const msgId = Number(req.params.id);
+  if (!Number.isFinite(msgId)) { res.status(400).json({ error: "ID tidak valid" }); return; }
+
+  const [msg] = await db.select().from(privateMessagesTable)
+    .where(eq(privateMessagesTable.id, msgId)).limit(1);
+  if (!msg) { res.status(404).json({ error: "Pesan tidak ditemukan" }); return; }
+
+  if (msg.senderId !== req.user!.id) {
+    res.status(403).json({ error: "Tidak diizinkan" }); return;
+  }
+
+  await db.update(privateMessagesTable)
+    .set({ deleted: true })
+    .where(eq(privateMessagesTable.id, msgId));
+  res.json({ ok: true });
 });
 
 export default router;

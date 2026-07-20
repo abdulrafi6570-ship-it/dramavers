@@ -7,6 +7,8 @@ export const privateMessagesTable = pgTable("private_messages", {
   recipientId: integer("recipient_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
   message: text("message").notNull(),
   read: boolean("read").notNull().default(false),
+  replyToId: integer("reply_to_id"),
+  deleted: boolean("deleted").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
