@@ -649,6 +649,39 @@ export default function VideoDetail() {
           )}
         </DialogContent>
       </Dialog>
+      {/* Long press bottom sheet */}
+      {longPressMenu && (
+        <div className="fixed inset-0 z-[60] flex items-end" onPointerDown={() => setLongPressMenu(null)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative w-full bg-zinc-900 rounded-t-2xl border-t border-white/[0.08] pb-8" onPointerDown={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-5" />
+            <div className="px-4 space-y-1">
+              {user && (user.id === longPressMenu.userId || user.role === "admin") ? (
+                <>
+                  <button
+                    className="w-full text-left px-4 py-3.5 rounded-xl text-white/80 active:bg-white/10 transition-colors flex items-center gap-3 text-sm"
+                    onPointerDown={() => { setEditingId(longPressMenu.id); setEditText(longPressMenu.text); setLongPressMenu(null); }}
+                  >
+                    <span>✏️</span> Edit komentar
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3.5 rounded-xl text-red-400 active:bg-red-400/10 transition-colors flex items-center gap-3 text-sm"
+                    onPointerDown={() => { deleteComment.mutate({ id: longPressMenu.id }); removeFromCache(longPressMenu.id); setLongPressMenu(null); }}
+                  >
+                    <span>🗑️</span> Hapus komentar
+                  </button>
+                </>
+              ) : (
+                <p className="text-center text-white/30 text-sm py-3">Kamu tidak bisa mengelola komentar ini</p>
+              )}
+              <button
+                className="w-full text-left px-4 py-3.5 rounded-xl text-white/35 active:bg-white/5 transition-colors text-sm"
+                onPointerDown={() => setLongPressMenu(null)}
+              >Tutup</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
