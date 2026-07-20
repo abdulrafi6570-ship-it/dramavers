@@ -29,10 +29,8 @@ export default function VideoDetail() {
   const [commentText, setCommentText] = useState("");
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
   const [replyText, setReplyText] = useState("");
-  const [longPressMenu, setLongPressMenu] = useState<{ id: number; userId: number; text: string } | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
-  const lpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [videoAspect, setVideoAspect] = useState<number | null>(null);
   const [videoLoading, setVideoLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -58,15 +56,6 @@ export default function VideoDetail() {
   const invalidateVideo = () => qc.invalidateQueries({ queryKey: getGetVideoQueryKey(id) });
   const invalidateComments = () => qc.invalidateQueries({ queryKey: getListCommentsQueryKey({ videoId: id }) });
 
-  function startLP(lpId: number, lpUserId: number, lpText: string) {
-    lpTimer.current = setTimeout(() => {
-      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(30);
-      setLongPressMenu({ id: lpId, userId: lpUserId, text: lpText });
-    }, 500);
-  }
-  function cancelLP() {
-    if (lpTimer.current) { clearTimeout(lpTimer.current); lpTimer.current = null; }
-  }
   function removeFromCache(commentId: number) {
     qc.setQueryData(getListCommentsQueryKey({ videoId: id }), (old: any) => {
       if (!old) return old;
@@ -391,12 +380,6 @@ export default function VideoDetail() {
                   return topLevel.map((comment: any) => (
                     <div
                       key={comment.id}
-                      className="select-none"
-                      onContextMenu={e => e.preventDefault()}
-                      onPointerDown={() => startLP(comment.id, comment.userId, comment.text)}
-                      onPointerUp={cancelLP}
-                      onPointerCancel={cancelLP}
-                      onPointerMove={cancelLP}
                     >
                       {/* Top-level comment */}
                       <div className="flex gap-3">
@@ -425,6 +408,16 @@ export default function VideoDetail() {
                             </div>
                           ) : (
                             <p className="text-sm text-white/55 mt-0.5">{comment.text}</p>
+                          )}
+                          {editingId !== comment.id && user && (user.id === comment.userId || user.role === "admin") && (
+                            <div className="flex gap-3 mt-1.5">
+                              <button onClick={() => { setEditingId(comment.id); setEditText(comment.text); }} className="flex items-center gap-1 text-white/25 hover:text-white/60 transition-colors text-xs">
+                                <Pencil className="h-3 w-3" /> Edit
+                              </button>
+                              <button onClick={() => { deleteComment.mutate({ id: comment.id }); removeFromCache(comment.id); }} className="flex items-center gap-1 text-white/25 hover:text-red-400 transition-colors text-xs">
+                                <Trash2 className="h-3 w-3" /> Hapus
+                              </button>
+                            </div>
                           )}
                           {user && (
                             <button
@@ -481,12 +474,7 @@ export default function VideoDetail() {
                           {merged.map((reply: any) => (
                             <div
                               key={reply.id}
-                              className="flex gap-2 select-none"
-                              onContextMenu={e => e.preventDefault()}
-                              onPointerDown={() => startLP(reply.id, reply.userId, reply.text)}
-                              onPointerUp={cancelLP}
-                              onPointerCancel={cancelLP}
-                              onPointerMove={cancelLP}
+                              className="flex gap-2"
                             >
                               <Link href={`/users/${reply.userId}`}>
                                 <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white font-bold flex-shrink-0 cursor-pointer hover:bg-white/15 transition-colors overflow-hidden">
@@ -513,6 +501,16 @@ export default function VideoDetail() {
                                   </div>
                                 ) : (
                                   <p className="text-xs text-white/50 mt-0.5">{reply.text}</p>
+                                )}
+                                {editingId !== reply.id && user && (user.id === reply.userId || user.role === "admin") && (
+                                  <div className="flex gap-3 mt-1.5">
+                                    <button onClick={() => { setEditingId(reply.id); setEditText(reply.text); }} className="flex items-center gap-1 text-white/25 hover:text-white/60 transition-colors text-xs">
+                                      <Pencil className="h-3 w-3" /> Edit
+                                    </button>
+                                    <button onClick={() => { deleteComment.mutate({ id: reply.id }); removeFromCache(reply.id); }} className="flex items-center gap-1 text-white/25 hover:text-red-400 transition-colors text-xs">
+                                      <Trash2 className="h-3 w-3" /> Hapus
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -650,30 +648,6 @@ export default function VideoDetail() {
         </DialogContent>
       </Dialog>
       {/* Long press bottom sheet */}
-      {longPressMenu && (
-        <div className="fixed inset-0 z-[60] flex items-end" onPointerDown={() => setLongPressMenu(null)}>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative w-full bg-zinc-900 rounded-t-2xl border-t border-white/[0.08] pb-8" onPointerDown={e => e.stopPropagation()}>
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-5" />
-            <div className="px-4 space-y-1">
-              {user && (user.id === longPressMenu.userId || user.role === "admin") ? (
-                <>
-                  <button
-                    className="w-full text-left px-4 py-3.5 rounded-xl text-white/80 active:bg-white/10 transition-colors flex items-center gap-3 text-sm"
-                    onPointerDown={() => { setEditingId(longPressMenu.id); setEditText(longPressMenu.text); setLongPressMenu(null); }}
-                  >
-                    <span>✏️</span> Edit komentar
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-3.5 rounded-xl text-red-400 active:bg-red-400/10 transition-colors flex items-center gap-3 text-sm"
-                    onPointerDown={() => { deleteComment.mutate({ id: longPressMenu.id }); removeFromCache(longPressMenu.id); setLongPressMenu(null); }}
-                  >
-                    <span>🗑️</span> Hapus komentar
-                  </button>
-                </>
-              ) : (
-                <p className="text-center text-white/30 text-sm py-3">Kamu tidak bisa mengelola komentar ini</p>
-              )}
               <button
                 className="w-full text-left px-4 py-3.5 rounded-xl text-white/35 active:bg-white/5 transition-colors text-sm"
                 onPointerDown={() => setLongPressMenu(null)}
