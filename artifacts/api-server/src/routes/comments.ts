@@ -49,7 +49,7 @@ async function fetchCommentsForVideo(videoId: number) {
     id: r.comment.id, text: r.comment.text, userId: r.comment.userId,
     username: r.username, photoUrl: r.photoUrl ?? null,
     videoId: r.comment.videoId, parentId: null, likeCount: r.comment.likeCount,
-    replies: replyMap.get(r.comment.id) ?? [],
+    replies: replyMap.get(Number(r.comment.id)) ?? [],
     createdAt: r.comment.createdAt.toISOString(),
   }));
 }
