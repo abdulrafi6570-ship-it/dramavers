@@ -49,7 +49,7 @@ export default function GlobalChat() {
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ message: text, ...(currentReply ? { replyToId: currentReply.id } : {}) }),
       });
-      if (res.ok) setMessages(prev => [...prev, await res.json()]);
+      if (res.ok) { const msg = await res.json(); setMessages(prev => [...prev, msg]); }
     } finally { setSending(false); }
   };
 
