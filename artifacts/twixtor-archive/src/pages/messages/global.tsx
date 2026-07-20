@@ -110,7 +110,7 @@ export default function GlobalChatPage() {
 
                 if (isMine) return (
                   <div key={m.id} className={`flex justify-end ${isFirst ? "mt-3" : "mt-0.5"}`}>
-                    <div className="max-w-[72%] flex flex-col items-end">
+                    <div className="max-w-[72%] min-w-0 flex flex-col items-end">
                       {isFirst && <span className="text-[10px] text-white/30 mb-1 mr-1">{timeAgo(m.createdAt)}</span>}
                       {m.replyTo && (
                         <div className="px-2 py-1 rounded-lg border-r-2 border-white/25 bg-white/[0.04] text-xs text-white/35 max-w-full text-right mb-1">
@@ -154,7 +154,7 @@ export default function GlobalChatPage() {
                         </Link>
                       )}
                     </div>
-                    <div className="max-w-[72%] flex flex-col">
+                    <div className="max-w-[72%] min-w-0 flex flex-col">
                       {isFirst && (
                         <div className="flex items-baseline gap-1.5 mb-1 ml-1">
                           <Link href={`/users/${m.userId}`}>

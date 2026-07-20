@@ -129,7 +129,7 @@ export default function ChatThread() {
                     <div className="flex flex-col gap-0.5">
                       <div
                         style={mine && !m.deleted ? { backgroundColor: "#7c3aed" } : {}}
-                        className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
+                        className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm break-words ${
                           m.deleted ? "bg-white/[0.03] text-white/20 italic border border-white/[0.04]"
                           : mine ? "rounded-br-sm text-white"
                           : "bg-white/10 border border-white/[0.08] text-white/90 rounded-bl-sm"
