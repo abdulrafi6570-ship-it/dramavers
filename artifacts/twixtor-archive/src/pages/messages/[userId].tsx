@@ -17,7 +17,7 @@ export default function ChatThread() {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(false);
-  const [partnerName, setPartnerName] = useState<string>("");
+  const [partnerName, setPartnerName] = useState("");
   const [partnerPhoto, setPartnerPhoto] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -27,7 +27,10 @@ export default function ChatThread() {
       const token = localStorage.getItem("twixtor_token");
       const res = await fetch(`/api/messages/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.status === 403) { setBlocked(true); return; }
-      if (res.ok) setMessages(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data);
+      }
       const profRes = await fetch(`/api/users/${userId}`);
       if (profRes.ok) {
         const prof = await profRes.json();
@@ -49,7 +52,8 @@ export default function ChatThread() {
   const handleSend = async () => {
     if (!input.trim() || sending) return;
     const text = input.trim();
-    setInput(""); setSending(true);
+    setInput("");
+    setSending(true);
     try {
       const token = localStorage.getItem("twixtor_token");
       const res = await fetch(`/api/messages/${userId}`, {
@@ -57,7 +61,10 @@ export default function ChatThread() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: text }),
       });
-      if (res.ok) const _d = await res.json(); setMessages(prev => [...prev, _d]);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(prev => [...prev, data]);
+      }
     } finally { setSending(false); }
   };
 
@@ -88,7 +95,6 @@ export default function ChatThread() {
     <div className="h-dvh bg-background flex flex-col overflow-hidden">
       <Navbar />
       <div className="max-w-2xl w-full mx-auto px-4 flex-1 flex flex-col overflow-hidden min-h-0">
-        {/* Header — klik nama/foto → ke profil partner */}
         <div className="flex items-center gap-3 py-3 border-b border-white/10 bg-background shrink-0">
           <button onClick={() => window.history.back()} className="text-white/60 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
