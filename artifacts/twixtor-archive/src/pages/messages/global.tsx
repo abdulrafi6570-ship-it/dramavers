@@ -70,7 +70,7 @@ export default function GlobalChatPage() {
         headers: { "Content-Type": "application/json", ...authHeader() },
         body: JSON.stringify({ message: msg, ...(currentReply ? { replyToId: currentReply.id } : {}) }),
       });
-      if (res.ok) setMsgs((prev) => [...prev, await res.json()]);
+      if (res.ok) const d = await res.json(); setMsgs((prev) => [...prev, d]);
     } finally { setSending(false); }
   };
 
