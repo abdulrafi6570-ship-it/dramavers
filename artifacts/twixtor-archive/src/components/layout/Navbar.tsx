@@ -31,6 +31,7 @@ export function Navbar() {
     { href: "/videos", label: "Browse" },
     { href: "/messages",   label: "Chat"   },
     { href: "/search", label: "Search" },
+    { href: "/bantuan", label: "Bantuan" },
   ];
 
   const isSearchActive = location.startsWith("/search");
@@ -102,6 +103,11 @@ export function Navbar() {
       label: "Search",
       onClick: () => setLocation("/search"),
       hoverStyles: { bgColor: "rgba(74,222,128,0.2)", textColor: "#4ade80" },
+    },
+    {
+      label: "Bantuan",
+      onClick: () => setLocation("/bantuan"),
+      hoverStyles: { bgColor: "rgba(148,163,184,0.2)", textColor: "#94a3b8" },
     },
     {
       label: "❤️ Support",

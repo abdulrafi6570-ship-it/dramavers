@@ -37,6 +37,7 @@ import AdminAds from "@/pages/admin/ads";
 import AdminSettings from "@/pages/admin/settings";
 import AdminFeedback from "@/pages/admin/feedback";
 import GlobalChat from "@/pages/chat/index";
+import Help from "@/pages/help/index";
 import MessagesInbox from "@/pages/messages/index";
 import ChatThread from "@/pages/messages/[userId]";
 import GlobalChatPage from "@/pages/messages/global";
@@ -134,6 +135,7 @@ function Router() {
       <Route path="/history" component={History} />
       <Route path="/requests" component={Requests} />
       <Route path="/chat" component={GlobalChat} />
+      <Route path="/bantuan" component={Help} />
       <Route path="/messages" component={MessagesInbox} />
       <Route path="/messages/global" component={GlobalChatPage} />
       <Route path="/messages/:userId" component={ChatThread} />
