@@ -18,6 +18,7 @@ import followsRouter from "./follows";
 import usersRouter from "./users";
 import feedbackRouter from "./feedback";
 import chatRouter from "./chat";
+import aiRouter from "./ai";
 import messagesRouter from "./messages";
 
 const router: IRouter = Router();
@@ -42,5 +43,6 @@ router.use(usersRouter);
 router.use(messagesRouter);
 router.use(feedbackRouter);
 router.use(chatRouter);
+router.use(aiRouter);
 
 export default router;

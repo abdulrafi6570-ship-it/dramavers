@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AiVideoChat } from "@/components/AiVideoChat";
 
 const TIKTOK_USERNAME = "@rapzzelitcees1";
 const TIKTOK_URL = "https://www.tiktok.com/@rapzzelitcees1";
@@ -327,6 +328,9 @@ export default function VideoDetail() {
                 </a>
               </div>
             </div>
+
+            {/* AI Assistant */}
+            <AiVideoChat videoId={video.id} />
 
             {/* Comments */}
             <div className="glass-panel rounded-2xl p-5 border border-white/8">
