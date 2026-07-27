@@ -2,10 +2,28 @@ import { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send, Sparkles, Loader2 } from "lucide-react";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+}
+
+function renderMessageContent(content: string) {
+  const parts = content.split(/(\/videos\/\d+)/g);
+  return parts.map((part, i) =>
+    /^\/videos\/\d+$/.test(part) ? (
+      <Link
+        key={i}
+        href={part}
+        className="underline decoration-white/30 underline-offset-2 text-white font-medium hover:text-white/80"
+      >
+        {part}
+      </Link>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
 }
 
 interface AiVideoChatProps {
@@ -85,7 +103,7 @@ export function AiVideoChat({ videoId }: AiVideoChatProps) {
                     : "bg-white/[0.04] text-white/80 border border-white/8"
                 }`}
               >
-                {m.content}
+                {renderMessageContent(m.content)}
               </div>
             </div>
           ))}
