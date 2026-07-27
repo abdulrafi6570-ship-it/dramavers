@@ -12,6 +12,7 @@ export function FeedbackButton() {
   const { user } = useAuth();
   const constraintsRef = useRef(null);
   const panelConstraintsRef = useRef(null);
+  const isDraggingRef = useRef(false);
 
   const handleSend = async (message: string, attachmentUrl?: string, mimeType?: string) => {
     if (!message && !attachmentUrl) return;
@@ -98,11 +99,19 @@ export function FeedbackButton() {
       </AnimatePresence>
 
       <motion.div
-        className="fixed bottom-24 right-4 md:bottom-6 md:right-16 z-40 select-none"
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={constraintsRef}
+        onDragStart={() => { isDraggingRef.current = true; }}
+        onDragEnd={() => { setTimeout(() => { isDraggingRef.current = false; }, 0); }}
+        whileDrag={{ scale: 1.05 }}
+        className="fixed bottom-24 right-4 md:bottom-6 md:right-16 z-40 select-none touch-none"
+        style={{ cursor: "grab" }}
       >
         <div className="relative">
           <motion.button
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => { if (isDraggingRef.current) return; setOpen((o) => !o); }}
             whileTap={{ scale: 0.95 }}
             className="h-12 w-12 rounded-full bg-white/10 border border-white/15 backdrop-blur-xl flex items-center justify-center shadow-lg hover:bg-white/15 transition-colors"
             aria-label="Kirim pesan ke admin"
