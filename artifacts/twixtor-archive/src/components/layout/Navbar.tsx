@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User, LayoutDashboard, Home, Film, Users, Heart, MessageSquare } from "lucide-react";
+import { LogOut, User, LayoutDashboard, Home, Film, Users, Heart, MessageSquare, ChevronLeft } from "lucide-react";
 import Dock from "@/components/Dock";
 import BubbleMenu from "@/components/BubbleMenu";
 import Lottie from "lottie-react";
@@ -136,6 +136,17 @@ export function Navbar() {
       {/* Top header */}
       <header className="sticky top-0 z-50 w-full border-b border-white/[0.05] bg-black/80 backdrop-blur-xl">
         <div className="container mx-auto flex h-13 items-center px-4 md:px-6">
+          {/* Back button */}
+          {location !== "/" && (
+            <button
+              onClick={() => window.history.back()}
+              aria-label="Kembali"
+              className="mr-1.5 h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/8 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
             <div className="flex flex-col leading-none">
