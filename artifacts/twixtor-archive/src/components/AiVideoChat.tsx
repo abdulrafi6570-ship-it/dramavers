@@ -35,7 +35,7 @@ export function AiVideoChat({ videoId }: AiVideoChatProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: text,
-          videoId,
+          videoId: videoId !== undefined && videoId !== null ? Number(videoId) : undefined,
           history: newMessages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
         }),
       });

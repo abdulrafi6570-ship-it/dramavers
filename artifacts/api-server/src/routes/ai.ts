@@ -8,7 +8,7 @@ const router: IRouter = Router();
 
 const ChatBody = z.object({
   message: z.string().min(1).max(1000),
-  videoId: z.number().int().positive().optional(),
+  videoId: z.coerce.number().int().positive().optional(),
   history: z
     .array(
       z.object({
