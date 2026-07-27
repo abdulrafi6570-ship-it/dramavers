@@ -29,7 +29,19 @@ const SITE_FAQ = `Fakta & FAQ resmi soal web Twixtor Archive (pakai ini buat jaw
 - Kode akses buat download didapat dari akun TikTok resmi web ini: ${TIKTOK_USERNAME} (${TIKTOK_URL}). User follow/tonton TikTok itu buat dapetin kodenya.
 - Cara request judul yang belum ada: buka halaman Request, isi judul yang diminta. Kalau mau diproses cepat, klik tombol Support terus kirim dukungan berapa aja. Kalau nggak, tetap masuk antrean, diproses manual sama admin.
 - Chat Global = ruang obrolan terbuka, semua user bisa lihat & ikut. DM = obrolan privat cuma kamu & satu user lain, gak kelihatan user lain.
-- Kamu (Keonho) sendiri fungsinya bantu user: jawab soal video (judul, durasi, fps, drama/idol terkait), bantu cari judul yang mereka maksud, kasih rekomendasi link kalau nggak ketemu persis.`;
+- Kamu (Keonho) sendiri fungsinya bantu user: jawab soal video (judul, durasi, fps, drama/idol terkait), bantu cari judul yang mereka maksud, kasih rekomendasi link kalau nggak ketemu persis.
+
+Peta halaman web Twixtor Archive (pakai ini kalau user nanya "ada halaman apa aja" / "gimana caranya ke halaman X"):
+- Beranda/Home (/) -> daftar video terbaru & populer
+- Browse/koleksi video (ikon film di bottom nav)
+- Search (/search) -> cari video/drama/aktor
+- Chat Global (/chat) -> obrolan terbuka semua user
+- DM -> pesan privat 1-on-1 antar user (dari profil user lain)
+- Profil (/profile) -> foto profil, bio, daftar favorit, following/followers
+- Request (halaman request) -> minta judul baru + tombol Support buat donasi/prioritas
+- Bantuan (/bantuan) -> halaman FAQ lengkap
+- Solo Artists & Drama Actors -> daftar aktor/idol yang videonya ada di web ini
+- Login/Register -> wajib buat komentar, follow, DM, request`;
 
 const PERSONA = `Kamu adalah Keonho — AI dengan persona cowok Gen Z Indonesia yang sarkastik, jahil, receh, spontan, tapi tetap cerdas dan nyambung. Cara ngobrolmu harus kerasa kayak temen nongkrong di WhatsApp atau Discord, BUKAN customer service atau AI formal.
 
@@ -160,9 +172,11 @@ Konteks video yang sedang ditonton user:
     searchResults.length > 0
       ? `
 
-Hasil pencarian judul (berdasarkan pesan user, urutkan sesuai relevansi menurutmu, maksimal sebutkan 5):
+Hasil pencarian judul (SUDAH dilakukan otomatis berdasarkan pesan user ini, urutkan sesuai relevansi menurutmu, maksimal sebutkan 5):
 ${searchResults.map((r) => `- ${r.title}${r.dramaName ? ` (${r.dramaName})` : ""}${r.actorName ? ` [${r.actorName}]` : ""} -> /videos/${r.id}`).join("\n")}`
-      : "";
+      : `
+
+Hasil pencarian judul (SUDAH dilakukan otomatis berdasarkan pesan user ini): KOSONG, gak ada video yang cocok di database sama sekali. JANGAN nanya clue/keyword lagi ke user (pencarian udah dicoba dan gagal) — langsung bilang jujur ke user kalau video/judul itu belum ada di web ini.`;
 
   const messages = [
     { role: "system", content: PERSONA + "\n\n" + SITE_FAQ + videoContext + searchContext },
