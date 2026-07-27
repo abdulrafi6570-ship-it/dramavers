@@ -75,6 +75,7 @@ async function searchTitles(message: string) {
   const conditions = keywords.flatMap((kw) => [
     ilike(videosTable.title, `%${kw}%`),
     ilike(dramasTable.name, `%${kw}%`),
+    ilike(actorsTable.name, `%${kw}%`),
   ]);
 
   const rows = await db
@@ -82,9 +83,11 @@ async function searchTitles(message: string) {
       id: videosTable.id,
       title: videosTable.title,
       dramaName: dramasTable.name,
+      actorName: actorsTable.name,
     })
     .from(videosTable)
     .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
+    .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
     .where(or(...conditions))
     .orderBy(desc(videosTable.popularityScore))
     .limit(8);
@@ -140,7 +143,7 @@ Konteks video yang sedang ditonton user:
       ? `
 
 Hasil pencarian judul (berdasarkan pesan user, urutkan sesuai relevansi menurutmu, maksimal sebutkan 5):
-${searchResults.map((r) => `- ${r.title}${r.dramaName ? ` (${r.dramaName})` : ""} -> /videos/${r.id}`).join("\n")}`
+${searchResults.map((r) => `- ${r.title}${r.dramaName ? ` (${r.dramaName})` : ""}${r.actorName ? ` [${r.actorName}]` : ""} -> /videos/${r.id}`).join("\n")}`
       : "";
 
   const messages = [
