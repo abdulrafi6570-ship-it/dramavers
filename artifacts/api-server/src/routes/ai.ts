@@ -155,6 +155,7 @@ router.post("/ai/chat", optionalAuth, async (req, res): Promise<void> => {
 
 Konteks video yang sedang ditonton user:
 - Judul video: ${v.title}
+- Status buatan: ${v.isOriginal === false ? `CR (credit dari ${v.creditName ?? "sumber lain"})` : "buatan sendiri"}
 - Drama/Series: ${d?.name ?? "tidak ada"}
 - Kategori: ${d?.category ?? "tidak diketahui"} (kdrama=Korea, cdrama=China, indo=Indonesia, film_barat=Barat, anime=Jepang, series=lainnya)
 - Genre: ${d?.genre ?? "tidak ada"}

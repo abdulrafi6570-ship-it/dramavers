@@ -7,6 +7,14 @@ import {
   UpdateVideoParams, UpdateVideoBody, DeleteVideoParams,
   RecordViewParams, DownloadVideoParams, RateVideoParams, RateVideoBody,
 } from "@workspace/api-zod";
+import { z } from "zod";
+
+// Field CR (credit) belum ada di generated api-zod, divalidasi manual di sini
+const CrFields = z.object({
+  isOriginal: z.boolean().optional(),
+  creditName: z.string().max(150).nullable().optional(),
+  creditUrl: z.string().url().max(500).nullable().optional(),
+});
 
 const router: IRouter = Router();
 
@@ -21,6 +29,7 @@ function formatVideo(v: any, userId?: number, favoriteIds?: Set<number>, bookmar
     fileSize: v.fileSize ?? null, format: v.format ?? null, tags: v.tags ?? [],
     viewCount: v.viewCount ?? 0, downloadCount: v.downloadCount ?? 0, favoriteCount: v.favoriteCount ?? 0,
     popularityScore: v.popularityScore ?? null,
+    isOriginal: v.isOriginal ?? true, creditName: v.creditName ?? null, creditUrl: v.creditUrl ?? null,
     isFavorited: userId && favoriteIds ? favoriteIds.has(v.id) : null,
     isBookmarked: userId && bookmarkIds ? bookmarkIds.has(v.id) : null,
     createdAt: v.createdAt instanceof Date ? v.createdAt.toISOString() : v.createdAt,
@@ -87,7 +96,9 @@ router.post("/videos", requireAuth, requireAdmin, async (req, res): Promise<void
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [video] = await db.insert(videosTable).values(parsed.data as any).returning();
+  const crParsed = CrFields.safeParse(req.body);
+  const crData = crParsed.success ? crParsed.data : {};
+  const [video] = await db.insert(videosTable).values({ ...parsed.data, ...crData } as any).returning();
   res.status(201).json(formatVideo(video));
 });
 
@@ -153,6 +164,7 @@ router.get("/videos/:id", optionalAuth, async (req, res): Promise<void> => {
     fileSize: v.fileSize ?? null, format: v.format ?? null, tags: v.tags ?? [],
     viewCount: v.viewCount, downloadCount: v.downloadCount, favoriteCount: v.favoriteCount,
     popularityScore: v.popularityScore ?? null,
+    isOriginal: v.isOriginal ?? true, creditName: v.creditName ?? null, creditUrl: v.creditUrl ?? null,
     averageRating: avgRow?.avg ? Number(avgRow.avg) : null,
     isFavorited, isBookmarked,
     relatedVideos: related.map((r) => formatVideo({ ...r.video, dramaName: r.dramaName, actorName: r.actorName })),
@@ -171,7 +183,9 @@ router.patch("/videos/:id", requireAuth, requireAdmin, async (req, res): Promise
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [video] = await db.update(videosTable).set(parsed.data as any).where(eq(videosTable.id, params.data.id)).returning();
+  const crParsed = CrFields.safeParse(req.body);
+  const crData = crParsed.success ? crParsed.data : {};
+  const [video] = await db.update(videosTable).set({ ...parsed.data, ...crData } as any).where(eq(videosTable.id, params.data.id)).returning();
   if (!video) {
     res.status(404).json({ error: "Video not found" });
     return;

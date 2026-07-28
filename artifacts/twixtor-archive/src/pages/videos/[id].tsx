@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDownloadManager } from "@/contexts/DownloadContext";
 import { Link, useParams, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X, Pencil } from "lucide-react";
+import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X, Pencil, Copyright } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -327,6 +327,30 @@ export default function VideoDetail() {
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
+
+              {/* CR badge - cuma muncul kalau video BUKAN buatan sendiri */}
+              {!(video as any).isOriginal && (
+                <div className="glass-panel rounded-xl p-3 border border-amber-400/20 bg-amber-400/[0.03] flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-400/10 flex items-center justify-center">
+                    <Copyright className="h-4 w-4 text-amber-400/80" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-white/50">Video ini hasil credit (CR) dari</p>
+                    {(video as any).creditUrl ? (
+                      <a href={(video as any).creditUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-white hover:text-white/80 transition-colors">
+                        {(video as any).creditName || "sumber lain"}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-semibold text-white">{(video as any).creditName || "sumber lain"}</p>
+                    )}
+                  </div>
+                  {(video as any).creditUrl && (
+                    <a href={(video as any).creditUrl} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 text-white/30 hover:text-white transition-colors">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* AI Assistant */}

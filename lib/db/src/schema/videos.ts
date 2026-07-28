@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer, real, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, real, pgEnum, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { dramasTable } from "./dramas";
@@ -24,6 +24,9 @@ export const videosTable = pgTable("videos", {
   fileSize: integer("file_size"),
   format: text("format"),
   tags: text("tags").array().notNull().default([]),
+  isOriginal: boolean("is_original").notNull().default(true),
+  creditName: text("credit_name"),
+  creditUrl: text("credit_url"),
   viewCount: integer("view_count").notNull().default(0),
   downloadCount: integer("download_count").notNull().default(0),
   favoriteCount: integer("favorite_count").notNull().default(0),

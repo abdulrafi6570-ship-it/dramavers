@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FileUploader } from "@/components/FileUploader";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star, Sparkles, Copyright } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,9 +38,12 @@ type VideoForm = {
   resolution?: string;
   fps?: number;
   tags: string;
+  isOriginal: boolean;
+  creditName?: string;
+  creditUrl?: string;
 };
 
-const emptyForm: VideoForm = { title: "", type: "slomo", status: "draft", tags: "" };
+const emptyForm: VideoForm = { title: "", type: "slomo", status: "draft", tags: "", isOriginal: true };
 
 export default function AdminVideos() {
   const { user, isLoading: authLoading } = useAuth();
@@ -105,6 +108,9 @@ export default function AdminVideos() {
       resolution: form.resolution || undefined,
       fps: form.fps || undefined,
       tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
+      isOriginal: form.isOriginal,
+      creditName: form.isOriginal ? null : (form.creditName || undefined),
+      creditUrl: form.isOriginal ? null : (form.creditUrl || undefined),
     };
   }
 
@@ -277,6 +283,9 @@ export default function AdminVideos() {
                             resolution: video.resolution ?? "",
                             fps: video.fps ?? undefined,
                             tags: (video.tags ?? []).join(", "),
+                            isOriginal: (video as any).isOriginal ?? true,
+                            creditName: (video as any).creditName ?? "",
+                            creditUrl: (video as any).creditUrl ?? "",
                           });
                           setEditId(video.id);
                           setShowForm(true);
@@ -448,6 +457,60 @@ export default function AdminVideos() {
               <label className="text-xs text-white/50 mb-1 block">Tags (comma-separated)</label>
               <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="bg-black/40 border-white/10 text-white" placeholder="twixtor, slowmo, kiss" />
             </div>
+
+            {/* Sumber Video: Buatan Sendiri vs CR */}
+            <div className="col-span-2">
+              <label className="text-xs text-white/50 mb-2 block">Sumber Video</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, isOriginal: true })}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                    form.isOriginal
+                      ? "bg-primary/20 border-primary/60 text-primary"
+                      : "border-white/10 text-white/40 hover:text-white"
+                  }`}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Buatan Sendiri
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, isOriginal: false })}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                    !form.isOriginal
+                      ? "bg-amber-500/20 border-amber-500/60 text-amber-400"
+                      : "border-white/10 text-white/40 hover:text-white"
+                  }`}
+                >
+                  <Copyright className="h-4 w-4" />
+                  CR (Kredit)
+                </button>
+              </div>
+            </div>
+
+            {!form.isOriginal && (
+              <>
+                <div className="col-span-2">
+                  <label className="text-xs text-white/50 mb-1 block">Nama/Sumber Kredit</label>
+                  <Input
+                    value={form.creditName ?? ""}
+                    onChange={(e) => setForm({ ...form, creditName: e.target.value })}
+                    className="bg-black/40 border-amber-500/20 text-white"
+                    placeholder="e.g. @originaluploader atau nama channel"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs text-white/50 mb-1 block">Link Sumber (opsional)</label>
+                  <Input
+                    value={form.creditUrl ?? ""}
+                    onChange={(e) => setForm({ ...form, creditUrl: e.target.value })}
+                    className="bg-black/40 border-amber-500/20 text-white"
+                    placeholder="https://..."
+                  />
+                </div>
+              </>
+            )}
           </div>
           <div className="flex flex-col gap-2 mt-4">
             <div className="flex gap-2">
