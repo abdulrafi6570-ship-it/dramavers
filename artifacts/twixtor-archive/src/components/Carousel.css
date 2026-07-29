@@ -7,12 +7,11 @@
   --outer-r: 20px;
   --p-distance: 10px;
   background: rgba(255, 255, 255, 0.02);
-  height: 320px;
 }
 
 .crsl-track {
   display: flex;
-  height: 100%;
+  height: 280px;
 }
 
 .crsl-item {

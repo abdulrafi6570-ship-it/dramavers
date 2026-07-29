@@ -47,7 +47,7 @@ export default function Home() {
   const featuredDramas = data?.featuredDramas ?? [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
+    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-0 overflow-x-hidden">
       <Navbar />
       <main className="container mx-auto px-4 md:px-6 py-6 md:py-8">
 
@@ -276,10 +276,10 @@ export default function Home() {
               <h2 className="font-heading text-base font-semibold text-white">Recent Clips</h2>
               <Link href="/videos" className="text-xs text-white/40 hover:text-white transition-colors">See all →</Link>
             </div>
-            <div className="flex justify-start overflow-visible">
+            <div className="-mx-4 md:-mx-6">
               <Carousel
                 items={videoItems}
-                baseWidth={Math.min(260, typeof window !== "undefined" ? window.innerWidth - 32 : 260)}
+                baseWidth={typeof window !== "undefined" ? window.innerWidth : 320}
                 autoplay
                 autoplayDelay={3500}
                 pauseOnHover
