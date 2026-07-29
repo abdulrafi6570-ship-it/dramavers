@@ -117,12 +117,6 @@ export default function Login() {
                   Daftar
                 </Link>
               </p>
-              <p className="text-white/20 text-xs">
-                Admin?{" "}
-                <Link href="/admin/login" className="text-white/35 hover:text-white/55 transition-colors">
-                  Login admin →
-                </Link>
-              </p>
             </div>
           </div>
         </ElectricBorder>
