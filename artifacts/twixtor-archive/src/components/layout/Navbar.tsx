@@ -46,8 +46,8 @@ export function Navbar() {
     {
       icon: <Film size={18} />,
       label: "Browse",
-      active: location.startsWith("/videos"),
-      onClick: () => setLocation("/videos"),
+      active: location.startsWith("/dramas"),
+      onClick: () => setLocation("/dramas"),
     },
     {
       icon: <SearchIcon active={isSearchActive} />,
