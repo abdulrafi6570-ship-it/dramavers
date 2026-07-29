@@ -98,16 +98,6 @@ router.get("/actors/:id", optionalAuth, async (req, res): Promise<void> => {
     and(eq(videosTable.actorId, id), eq(videosTable.status, "published"))
   ).orderBy(videosTable.createdAt);
 
-  const [{ followerCount }] = await db.select({ followerCount: count() }).from(followsTable).where(eq(followsTable.actorId, id));
-
-  let isFollowed = false;
-  if (req.user) {
-    const [existing] = await db.select().from(followsTable).where(
-      and(eq(followsTable.userId, req.user.id), eq(followsTable.actorId, id))
-    );
-    isFollowed = !!existing;
-  }
-
   const dramas = dramaRows.map((r) => ({
     ...r.drama,
     posterUrl: r.drama.posterUrl ?? null,
@@ -124,8 +114,6 @@ router.get("/actors/:id", optionalAuth, async (req, res): Promise<void> => {
     dramas,
     videos: videos.map(formatVideo),
     videoCount: videos.length,
-    followerCount: Number(followerCount),
-    isFollowed,
     createdAt: actor.createdAt.toISOString(),
   });
 });
