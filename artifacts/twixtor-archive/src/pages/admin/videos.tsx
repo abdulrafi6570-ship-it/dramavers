@@ -212,8 +212,8 @@ export default function AdminVideos() {
           )}
         </div>
 
-        <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="glass-panel rounded-2xl border border-white/10 overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-white/10">
                 <th className="p-3 text-left w-8">
