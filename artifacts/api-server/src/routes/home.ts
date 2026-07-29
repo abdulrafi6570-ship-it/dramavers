@@ -43,7 +43,7 @@ router.get("/home", async (_req, res): Promise<void> => {
       .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
       .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
       .where(eq(videosTable.status, "published"))
-      .orderBy(desc(videosTable.popularityScore), desc(videosTable.downloadCount)).limit(12),
+      .orderBy(desc(videosTable.viewCount), desc(videosTable.popularityScore), desc(videosTable.downloadCount)).limit(12),
     Promise.all([
       db.select({ total: count() }).from(dramasTable),
       db.select({ total: count() }).from(actorsTable),
