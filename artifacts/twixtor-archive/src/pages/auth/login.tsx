@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Eye, EyeOff } from "lucide-react";
 import EvilEye from "@/components/EvilEye";
 import ElectricBorder from "@/components/ElectricBorder";
@@ -13,6 +13,23 @@ export default function Login() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [, setLocation] = useLocation();
+  const secretTapCount = useRef(0);
+  const secretTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Trigger rahasia: tap teks "ARCHIVE" 5x cepat buat masuk ke halaman admin login
+  const handleSecretTap = () => {
+    secretTapCount.current += 1;
+    if (secretTapTimer.current) clearTimeout(secretTapTimer.current);
+    if (secretTapCount.current >= 5) {
+      secretTapCount.current = 0;
+      setLocation("/admin/login");
+      return;
+    }
+    secretTapTimer.current = setTimeout(() => {
+      secretTapCount.current = 0;
+    }, 2000);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +66,12 @@ export default function Login() {
 
       <Link href="/" className="mb-8 text-center relative z-10">
         <div className="font-brand text-3xl tracking-[0.12em] text-white">TWIXTOR</div>
-        <div className="text-[10px] tracking-[0.5em] text-white/30 mt-0.5">ARCHIVE</div>
+        <div
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSecretTap(); }}
+          className="text-[10px] tracking-[0.5em] text-white/30 mt-0.5 select-none"
+        >
+          ARCHIVE
+        </div>
       </Link>
 
       <div className="w-full max-w-sm sm:max-w-md relative z-10">
