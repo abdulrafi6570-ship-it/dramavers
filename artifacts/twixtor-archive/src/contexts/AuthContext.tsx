@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { useGetMe, getGetMeQueryKey, useLogin, useLogout, useRegister, useVerifyAccessCode, LoginInput, RegisterInput, AccessCodeInput, User } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { refreshTwixtorToken } from "@/lib/token-refresh";
 
 interface AuthContextType {
   user: User | null;
@@ -16,7 +17,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const { data: meData, isLoading: isLoadingMe } = useGetMe({ query: { queryKey: getGetMeQueryKey(), retry: false } });
+  const [tokenRefreshReady, setTokenRefreshReady] = useState(false);
+  const { data: meData, isLoading: isLoadingMe } = useGetMe({ query: { queryKey: getGetMeQueryKey(), retry: false, enabled: tokenRefreshReady } });
 
   const loginMutation = useLogin();
   const registerMutation = useRegister();
@@ -30,10 +32,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else if (!isLoadingMe) setUser(null);
   }, [meData, isLoadingMe]);
 
+  useEffect(() => {
+    refreshTwixtorToken().finally(() => setTokenRefreshReady(true));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshTwixtorToken();
+    }, 20 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const login = async (data: LoginInput, redirectTo?: string) => {
     try {
       const res = await loginMutation.mutateAsync({ data });
       localStorage.setItem("twixtor_token", res.token);
+      if ((res as any).refreshToken) localStorage.setItem("twixtor_refresh_token", (res as any).refreshToken);
       setUser(res.user);
       toast({ title: "Login berhasil" });
       setLocation(redirectTo ?? (res.user.role === "admin" ? "/admin" : "/"));
@@ -47,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await registerMutation.mutateAsync({ data });
       localStorage.setItem("twixtor_token", res.token);
+      if ((res as any).refreshToken) localStorage.setItem("twixtor_refresh_token", (res as any).refreshToken);
       setUser(res.user);
       toast({ title: "Akun berhasil dibuat!" });
       setLocation("/");
@@ -59,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try { await logoutMutation.mutateAsync(); } catch {}
     localStorage.removeItem("twixtor_token");
+    localStorage.removeItem("twixtor_refresh_token");
     setUser(null);
     toast({ title: "Logout berhasil" });
     setLocation("/");

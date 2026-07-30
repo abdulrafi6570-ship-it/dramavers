@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Upload, X, Loader2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { refreshTwixtorToken } from "@/lib/token-refresh";
 
 interface FileUploaderProps {
   accept?: string;
@@ -46,35 +47,49 @@ export function FileUploader({
     setError("");
     setProgress(0);
 
+    const endpoint = toMp3 ? "https://dramavers-production.up.railway.app/api/uploads/mp3" : "https://dramavers-production.up.railway.app/api/uploads";
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const attemptUpload = (tok: string) => new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", endpoint);
+      xhr.setRequestHeader("Authorization", `Bearer ${tok}`);
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) setProgress(Math.round((evt.loaded / evt.total) * 100));
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const data = JSON.parse(xhr.responseText);
+          const url = data.url;
+          setPreview(url);
+          setProgress(100);
+          onUpload(url);
+          resolve();
+        } else if (xhr.status === 401) {
+          reject({ unauthorized: true });
+        } else {
+          reject(new Error("Upload gagal: " + xhr.status));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Koneksi gagal"));
+      xhr.send(formData);
+    });
+
     try {
-      const token = localStorage.getItem("twixtor_token");
-      const endpoint = toMp3 ? "https://dramavers-production.up.railway.app/api/uploads/mp3" : "https://dramavers-production.up.railway.app/api/uploads";
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", endpoint);
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-        xhr.upload.onprogress = (evt) => {
-          if (evt.lengthComputable) setProgress(Math.round((evt.loaded / evt.total) * 100));
-        };
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            const data = JSON.parse(xhr.responseText);
-            const url = data.url;
-            setPreview(url);
-            setProgress(100);
-            onUpload(url);
-            resolve();
-          } else {
-            reject(new Error("Upload gagal: " + xhr.status));
-          }
-        };
-        xhr.onerror = () => reject(new Error("Koneksi gagal"));
-        xhr.send(formData);
-      });
+      const token = localStorage.getItem("twixtor_token") ?? "";
+      try {
+        await attemptUpload(token);
+      } catch (err: any) {
+        if (err?.unauthorized) {
+          const freshToken = await refreshTwixtorToken();
+          if (!freshToken) throw new Error("Sesi login habis. Silakan login ulang.");
+          setProgress(0);
+          await attemptUpload(freshToken);
+        } else {
+          throw err;
+        }
+      }
     } catch (err: any) {
       setError(err?.message ?? "Upload gagal. Coba lagi.");
     } finally {

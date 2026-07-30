@@ -78,6 +78,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   res.status(201).json({
     user: { id: user.id, username: user.username, role: user.role, verified: user.verified, photoUrl: null, bio: null, createdAt: user.createdAt.toISOString(), followerCount: 0, followingCount: 0 },
     token: signInData.session.access_token,
+    refreshToken: signInData.session.refresh_token,
   });
 });
 
@@ -101,11 +102,24 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 
   const userWithCounts = await getUserWithCounts(user.id);
-  res.json({ user: userWithCounts, token: signInData.session.access_token });
+  res.json({ user: userWithCounts, token: signInData.session.access_token, refreshToken: signInData.session.refresh_token });
 });
 
 router.post("/auth/logout", async (_req, res): Promise<void> => {
   res.json({ success: true });
+});
+
+router.post("/auth/refresh", async (req, res): Promise<void> => {
+  const refreshToken = typeof req.body?.refreshToken === "string" ? req.body.refreshToken : null;
+  if (!refreshToken) { res.status(400).json({ error: "Missing refresh token" }); return; }
+
+  const { data, error } = await supabaseAnon.auth.refreshSession({ refresh_token: refreshToken });
+  if (error || !data.session) {
+    res.status(401).json({ error: "Invalid or expired refresh token" });
+    return;
+  }
+
+  res.json({ token: data.session.access_token, refreshToken: data.session.refresh_token });
 });
 
 router.post("/auth/change-credentials", requireAuth, async (req, res): Promise<void> => {
