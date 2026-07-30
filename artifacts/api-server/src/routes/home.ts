@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, videosTable, dramasTable, actorsTable, usersTable } from "@workspace/db";
-import { eq, ilike, desc, count } from "drizzle-orm";
+import { eq, ilike, desc, count, gt, and } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -42,7 +42,7 @@ router.get("/home", async (_req, res): Promise<void> => {
       .from(videosTable)
       .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
       .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
-      .where(eq(videosTable.status, "published"))
+      .where(and(eq(videosTable.status, "published"), gt(videosTable.viewCount, 0)))
       .orderBy(desc(videosTable.viewCount), desc(videosTable.popularityScore), desc(videosTable.downloadCount)).limit(12),
     Promise.all([
       db.select({ total: count() }).from(dramasTable),
