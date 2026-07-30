@@ -159,7 +159,7 @@ export default function AdminAds() {
 
         {/* Create/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="glass-panel-strong border border-white/10 text-white max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-neutral-950 border border-white/10 text-white max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-white">{editing ? "Edit Iklan" : "Tambah Iklan Baru"}</DialogTitle>
             </DialogHeader>

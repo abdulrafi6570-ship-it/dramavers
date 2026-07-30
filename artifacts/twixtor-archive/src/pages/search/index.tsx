@@ -1,4 +1,4 @@
-import { useGetSearchSuggestions, getGetSearchSuggestionsQueryKey } from "@workspace/api-client-react";
+import { useGetSearchSuggestions, getGetSearchSuggestionsQueryKey, useListDramas, getListDramasQueryKey } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { useState } from "react";
 import GlowingSearchBar from "@/components/ui/animated-glowing-search-bar";
@@ -31,6 +31,10 @@ export default function Search() {
     { q: query },
     { query: { queryKey: getGetSearchSuggestionsQueryKey({ q: query }), enabled: query.length > 1 } }
   );
+  const { data: defaultDramas } = useListDramas(
+    { limit: 12 },
+    { query: { queryKey: getListDramasQueryKey({ limit: 12 }) } }
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
@@ -51,10 +55,30 @@ export default function Search() {
 
         {query.length > 1 && isLoading && <WifiLoader />}
 
-        {!query && (
-          <div className="text-center py-20">
-            <p className="text-white/20 text-sm">Ketik sesuatu untuk mulai mencari</p>
-          </div>
+        {!query && defaultDramas && defaultDramas.dramas.length > 0 && (
+          <section>
+            <h2 className="font-heading text-base mb-4 text-white/60 uppercase tracking-widest">Semua Drama</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {defaultDramas.dramas.map((drama) => (
+                <Link
+                  key={drama.id}
+                  href={`/dramas/${drama.id}`}
+                  className="group aspect-[2/3] relative rounded-lg overflow-hidden glass-panel border-white/5 hover:border-primary/50"
+                >
+                  {drama.posterUrl && (
+                    <img
+                      src={drama.posterUrl}
+                      className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                      alt={drama.name}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end p-3">
+                    <span className="text-sm font-medium text-white line-clamp-2">{drama.name}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         )}
 
         {data && (

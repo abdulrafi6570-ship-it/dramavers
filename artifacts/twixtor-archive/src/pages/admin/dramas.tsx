@@ -188,7 +188,7 @@ export default function AdminDramas() {
 
       {/* Add/Edit Drama Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="glass-panel border-white/10 text-white">
+        <DialogContent className="bg-neutral-950 border-white/10 text-white">
           <DialogHeader><DialogTitle className="text-white">{editId ? "Edit Drama" : "Add Drama"}</DialogTitle></DialogHeader>
           <div className="space-y-3 mt-2">
             <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name *" className="bg-black/40 border-white/10 text-white" />
@@ -221,7 +221,7 @@ export default function AdminDramas() {
 
       {/* Actor Management Dialog */}
       <Dialog open={!!actorDialog} onOpenChange={(open) => { if (!open) setActorDialog(null); }}>
-        <DialogContent className="glass-panel border-white/10 text-white max-w-md">
+        <DialogContent className="bg-neutral-950 border-white/10 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
               <Users className="h-4 w-4" />

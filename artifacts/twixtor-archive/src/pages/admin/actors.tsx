@@ -140,7 +140,7 @@ export default function AdminActors() {
       </main>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="glass-panel border-white/10 text-white">
+        <DialogContent className="bg-neutral-950 border-white/10 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">{editId ? "Edit" : "Add"} {form.type === "drama" ? "Actor" : "Solo Artist"}</DialogTitle>
           </DialogHeader>

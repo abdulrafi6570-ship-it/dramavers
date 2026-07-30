@@ -314,7 +314,7 @@ export default function AdminVideos() {
       </main>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="glass-panel border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-neutral-950 border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">{editId ? "Edit Video" : "Add Video"}</DialogTitle>
           </DialogHeader>
