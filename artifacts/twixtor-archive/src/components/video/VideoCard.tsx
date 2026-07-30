@@ -1,5 +1,6 @@
 import { Video } from "@workspace/api-client-react";
 import { Link } from "wouter";
+import { Copyright } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Lottie from "lottie-react";
 import likeAnim from "@assets/lottieflow-ecommerce-14-14-000000-easey_1781367392935.json";
@@ -30,6 +31,14 @@ export function VideoCard({ video }: VideoCardProps) {
         <div className="absolute inset-0 bg-black/60" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+      {/* CR badge — cuma muncul kalau video BUKAN buatan sendiri */}
+      {!(video as any).isOriginal && (
+        <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-amber-400/90 text-black text-[9px] font-bold px-1.5 py-0.5 rounded">
+          <Copyright className="h-2.5 w-2.5" />
+          CR
+        </div>
+      )}
 
       <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         {/* Like button — Lottie finger-up icon */}
