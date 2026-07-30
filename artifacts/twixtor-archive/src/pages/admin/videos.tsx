@@ -11,6 +11,7 @@ import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star, Sparkles, Copyrig
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { InputWithTags } from "@/components/ui/input-with-tags";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -37,13 +38,13 @@ type VideoForm = {
   status: string;
   resolution?: string;
   fps?: number;
-  tags: string;
+  tags: string[];
   isOriginal: boolean;
   creditName?: string;
   creditUrl?: string;
 };
 
-const emptyForm: VideoForm = { title: "", type: "slomo", status: "draft", tags: "", isOriginal: true };
+const emptyForm: VideoForm = { title: "", type: "slomo", status: "draft", tags: [], isOriginal: true };
 
 export default function AdminVideos() {
   const { user, isLoading: authLoading } = useAuth();
@@ -107,7 +108,7 @@ export default function AdminVideos() {
       thumbnailUrl: form.thumbnailUrl || undefined,
       resolution: form.resolution || undefined,
       fps: form.fps || undefined,
-      tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
+      tags: form.tags,
       isOriginal: form.isOriginal,
       creditName: form.isOriginal ? null : (form.creditName || undefined),
       creditUrl: form.isOriginal ? null : (form.creditUrl || undefined),
@@ -282,7 +283,7 @@ export default function AdminVideos() {
                             thumbnailUrl: video.thumbnailUrl ?? "",
                             resolution: video.resolution ?? "",
                             fps: video.fps ?? undefined,
-                            tags: (video.tags ?? []).join(", "),
+                            tags: video.tags ?? [],
                             isOriginal: (video as any).isOriginal ?? true,
                             creditName: (video as any).creditName ?? "",
                             creditUrl: (video as any).creditUrl ?? "",
@@ -454,8 +455,8 @@ export default function AdminVideos() {
               <Input type="number" value={form.fps ?? ""} onChange={(e) => setForm({ ...form, fps: e.target.value ? Number(e.target.value) : undefined })} className="bg-black/40 border-white/10 text-white" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs text-white/50 mb-1 block">Tags (comma-separated)</label>
-              <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="bg-black/40 border-white/10 text-white" placeholder="twixtor, slowmo, kiss" />
+              <label className="text-xs text-white/50 mb-1 block">Tags</label>
+              <InputWithTags value={form.tags} onChange={(tags) => setForm({ ...form, tags })} placeholder="Ketik tag lalu tekan Enter (twixtor, slowmo, kiss...)" />
             </div>
 
             {/* Sumber Video: Buatan Sendiri vs CR */}
