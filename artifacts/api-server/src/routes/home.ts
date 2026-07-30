@@ -77,10 +77,16 @@ router.get("/search", async (req, res): Promise<void> => {
     return;
   }
 
-  const [dramas, actors, users] = await Promise.all([
+  const [dramas, actors, users, videos] = await Promise.all([
     db.select().from(dramasTable).where(ilike(dramasTable.name, `%${q}%`)).limit(8),
     db.select().from(actorsTable).where(ilike(actorsTable.name, `%${q}%`)).limit(8),
     db.select().from(usersTable).where(ilike(usersTable.username, `%${q}%`)).limit(8),
+    db.select({ video: videosTable, dramaName: dramasTable.name, actorName: actorsTable.name })
+      .from(videosTable)
+      .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
+      .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
+      .where(and(eq(videosTable.status, "published"), ilike(videosTable.title, `%${q}%`)))
+      .limit(12),
   ]);
 
   res.json({
@@ -93,7 +99,7 @@ router.get("/search", async (req, res): Promise<void> => {
     users: users.map((u) => ({
       id: u.id, username: u.username, photoUrl: u.photoUrl ?? null, verified: u.verified,
     })),
-    videos: [],
+    videos: videos.map((r) => formatVideo({ ...r.video, dramaName: r.dramaName, actorName: r.actorName })),
   });
 });
 

@@ -1,8 +1,9 @@
 import { useGetSearchSuggestions, getGetSearchSuggestionsQueryKey, useListDramas, getListDramasQueryKey } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GlowingSearchBar from "@/components/ui/animated-glowing-search-bar";
 import { Link } from "wouter";
+import { VideoCard } from "@/components/video/VideoCard";
 
 function WifiLoader() {
   return (
@@ -109,6 +110,17 @@ export default function Search() {
               </section>
             )}
 
+            {data.videos && data.videos.length > 0 && (
+              <section>
+                <h2 className="font-heading text-base mb-4 text-white/60 uppercase tracking-widest">Video</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {data.videos.map((video) => (
+                    <VideoCard key={video.id} video={video} />
+                  ))}
+                </div>
+              </section>
+            )}
+
             {data.actors && data.actors.length > 0 && (
               <section>
                 <h2 className="font-heading text-base mb-4 text-white/60 uppercase tracking-widest">Aktor & Artis</h2>
@@ -168,7 +180,8 @@ export default function Search() {
 
             {(!data.dramas || data.dramas.length === 0) &&
               (!data.actors || data.actors.length === 0) &&
-              (!data.users || data.users.length === 0) && (
+              (!data.users || data.users.length === 0) &&
+              (!data.videos || data.videos.length === 0) && (
                 <div className="text-center py-16">
                   <p className="text-white/30 text-base mb-1">Tidak ada hasil untuk &ldquo;{query}&rdquo;</p>
                   <p className="text-white/20 text-sm">Coba kata kunci yang berbeda</p>
