@@ -512,7 +512,7 @@ export default function AdminVideos() {
               </>
             )}
           </div>
-          <div className="flex flex-col gap-2 mt-4">
+          <div className="flex flex-col gap-2 mt-4 sticky bottom-0 -mx-6 px-6 pb-4 pt-3 bg-neutral-950 border-t border-white/10">
             <div className="flex gap-2">
               <Button onClick={handleSave} className="flex-1 bg-primary hover:bg-primary/90" disabled={createVideo.isPending || updateVideo.isPending}>
                 <Check className="h-4 w-4 mr-2" />{editId ? "Update" : "Simpan"}
