@@ -16,13 +16,6 @@ SEARCH_PATH = "artifacts/twixtor-archive/src/pages/search/index.tsx"
 
 replace_once(
     SEARCH_PATH,
-    'import { useState } from "react";',
-    'import { useState, useEffect } from "react";',
-    "Import useEffect into Search page",
-)
-
-replace_once(
-    SEARCH_PATH,
     'import { VideoCard } from "@/components/video/VideoCard";',
     'import { VideoCard } from "@/components/video/VideoCard";\nimport { X } from "lucide-react";',
     "Import X icon for removable history chips",
@@ -60,8 +53,6 @@ replace_once(
     { query: { queryKey: getListDramasQueryKey({ limit: 12 }) } }
   );
 
-  // Remember what was searched — but only once the person pauses typing for
-  // a bit, so we don't fill up history with every half-typed keystroke.
   useEffect(() => {
     const trimmed = query.trim();
     if (trimmed.length < 2) return;
