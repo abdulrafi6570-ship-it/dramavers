@@ -1,7 +1,9 @@
 import { Router, type IRouter } from "express";
 import { db, dramasTable, actorsTable, dramaActorsTable, videosTable } from "@workspace/db";
 import { eq, ilike, and, sql, count } from "drizzle-orm";
-import { requireAuth, requireAdmin } from "../middlewares/auth";
+import { requireAuth, requireAdmin, optionalAuth } from "../middlewares/auth";
+import { db as dbForFav, dramaFavoritesTable } from "@workspace/db";
+import { eq as eqFav, and as andFav } from "drizzle-orm";
 import {
   ListDramasQueryParams,
   CreateDramaBody,
@@ -61,7 +63,7 @@ router.post("/dramas", requireAuth, requireAdmin, async (req, res): Promise<void
   res.status(201).json({ ...drama, createdAt: drama.createdAt.toISOString() });
 });
 
-router.get("/dramas/:id", async (req, res): Promise<void> => {
+router.get("/dramas/:id", optionalAuth, async (req, res): Promise<void> => {
   const params = GetDramaParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -92,6 +94,14 @@ router.get("/dramas/:id", async (req, res): Promise<void> => {
     createdAt: r.actor.createdAt.toISOString(),
   }));
 
+  let isFavorited = false;
+  if (req.user) {
+    const [fav] = await dbForFav.select().from(dramaFavoritesTable).where(
+      andFav(eqFav(dramaFavoritesTable.userId, req.user.id), eqFav(dramaFavoritesTable.dramaId, id))
+    );
+    isFavorited = !!fav;
+  }
+
   res.json({
     ...drama,
     posterUrl: drama.posterUrl ?? null,
@@ -100,6 +110,7 @@ router.get("/dramas/:id", async (req, res): Promise<void> => {
     actors,
     videos: videos.map((v) => formatVideo(v)),
     videoCount: videos.length,
+    isFavorited,
     createdAt: drama.createdAt.toISOString(),
   });
 });
