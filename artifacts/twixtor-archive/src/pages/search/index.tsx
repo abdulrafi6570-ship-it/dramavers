@@ -5,6 +5,7 @@ import GlowingSearchBar from "@/components/ui/animated-glowing-search-bar";
 import { Link } from "wouter";
 import { VideoCard } from "@/components/video/VideoCard";
 import { X } from "lucide-react";
+import { X } from "lucide-react";
 
 function WifiLoader() {
   return (
@@ -38,8 +39,20 @@ function loadRecentSearches(): string[] {
   }
 }
 
+const RECENT_SEARCHES_KEY = "twixtor_recent_searches";
+
+function loadRecentSearches(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function Search() {
   const [query, setQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
   const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
   const { data, isLoading } = useGetSearchSuggestions(
     { q: query },
@@ -49,6 +62,27 @@ export default function Search() {
     { limit: 12 },
     { query: { queryKey: getListDramasQueryKey({ limit: 12 }) } }
   );
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return;
+    const timer = setTimeout(() => {
+      setRecentSearches((prev) => {
+        const next = [trimmed, ...prev.filter((t) => t.toLowerCase() !== trimmed.toLowerCase())].slice(0, 10);
+        try { localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next)); } catch {}
+        return next;
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const removeRecentSearch = (term: string) => {
+    setRecentSearches((prev) => {
+      const next = prev.filter((t) => t !== term);
+      try { localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -89,6 +123,32 @@ export default function Search() {
         </div>
 
         {query.length > 1 && isLoading && <WifiLoader />}
+
+        {!query && recentSearches.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-heading text-base mb-3 text-white/60 uppercase tracking-widest">Pencarian Terakhir</h2>
+            <div className="flex flex-wrap gap-2">
+              {recentSearches.map((term) => (
+                <div
+                  key={term}
+                  className="bg-[#11111198] px-2 py-1 rounded-xl text-sm flex items-center gap-1 border border-white/10 text-white"
+                >
+                  <button type="button" onClick={() => setQuery(term)} className="hover:text-white/80">
+                    {term}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeRecentSearch(term)}
+                    className="rounded-full p-1 hover:bg-[#11111136] text-white/50 hover:text-white"
+                    aria-label={`Hapus "${term}" dari riwayat`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {!query && recentSearches.length > 0 && (
           <div className="mb-8">
