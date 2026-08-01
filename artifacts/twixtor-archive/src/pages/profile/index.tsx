@@ -296,6 +296,7 @@ export default function Profile() {
             { href: "/favorites", label: "Favorites", desc: "Videos you liked" },
             { href: "/bookmarks", label: "Bookmarks", desc: "Saved for later" },
             { href: "/history", label: "History", desc: "Previously downloaded" },
+            { href: "/watch-history", label: "Riwayat Tontonan", desc: "Video yang pernah kamu tonton" },
           ].map((item) => (
             <Link
               key={item.href}

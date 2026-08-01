@@ -23,6 +23,7 @@ import UserProfile from "@/pages/users/[id]";
 import Favorites from "@/pages/favorites/index";
 import Bookmarks from "@/pages/bookmarks/index";
 import History from "@/pages/history/index";
+import WatchHistory from "@/pages/watch-history/index";
 import Requests from "@/pages/requests/index";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
@@ -133,6 +134,7 @@ function Router() {
       <Route path="/favorites" component={Favorites} />
       <Route path="/bookmarks" component={Bookmarks} />
       <Route path="/history" component={History} />
+      <Route path="/watch-history" component={WatchHistory} />
       <Route path="/requests" component={Requests} />
       <Route path="/chat" component={GlobalChat} />
       <Route path="/bantuan" component={Help} />
