@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, usersTable, userFollowsTable, favoritesTable, videosTable, dramasTable } from "@workspace/db";
+import { db, usersTable, userFollowsTable, favoritesTable, videosTable, dramasTable, dramaFavoritesTable } from "@workspace/db";
 import { eq, and, count } from "drizzle-orm";
 import { requireAuth, optionalAuth } from "../middlewares/auth";
 import { z } from "zod";
@@ -150,17 +150,11 @@ router.get("/users/:id/favorites", optionalAuth, async (req, res): Promise<void>
     name: dramasTable.name,
     posterUrl: dramasTable.posterUrl,
     category: dramasTable.category,
-  }).from(favoritesTable)
-    .innerJoin(videosTable, eq(favoritesTable.videoId, videosTable.id))
-    .innerJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
-    .where(eq(favoritesTable.userId, params.data.id));
+  }).from(dramaFavoritesTable)
+    .innerJoin(dramasTable, eq(dramaFavoritesTable.dramaId, dramasTable.id))
+    .where(eq(dramaFavoritesTable.userId, params.data.id));
 
-  const seen = new Set<number>();
-  const dramas = rows.filter((r) => {
-    if (seen.has(r.id)) return false;
-    seen.add(r.id);
-    return true;
-  }).map((r) => ({ id: r.id, name: r.name, posterUrl: r.posterUrl ?? null, category: r.category }));
+  const dramas = rows.map((r) => ({ id: r.id, name: r.name, posterUrl: r.posterUrl ?? null, category: r.category }));
 
   res.json(dramas);
 });
