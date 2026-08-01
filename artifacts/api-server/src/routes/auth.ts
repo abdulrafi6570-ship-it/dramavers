@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import multer from "multer";
 import { randomUUID } from "crypto";
-import { db, usersTable, accessCodesTable, userFollowsTable } from "@workspace/db";
+import { db, usersTable, accessCodesTable, userFollowsTable, userLoginDaysTable } from "@workspace/db";
 import { eq, and, or, gt, count } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 import { RegisterBody, LoginBody, VerifyAccessCodeBody } from "@workspace/api-zod";
@@ -160,7 +160,57 @@ router.post("/auth/change-credentials", requireAuth, async (req, res): Promise<v
 router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   const userWithCounts = await getUserWithCounts(req.user!.id);
   if (!userWithCounts) { res.status(404).json({ error: "User not found" }); return; }
+
+  // Record today as a "logged in" day for the streak calendar — safe to
+  // call repeatedly since it's a no-op after the first hit each day.
+  const today = new Date().toISOString().slice(0, 10);
+  await db.insert(userLoginDaysTable).values({ userId: req.user!.id, loginDate: today }).onConflictDoNothing();
+
   res.json(userWithCounts);
+});
+
+router.get("/auth/streak", requireAuth, async (req, res): Promise<void> => {
+  const rows = await db.select({ loginDate: userLoginDaysTable.loginDate })
+    .from(userLoginDaysTable)
+    .where(eq(userLoginDaysTable.userId, req.user!.id))
+    .orderBy(userLoginDaysTable.loginDate);
+
+  const dates = rows.map((r) => r.loginDate);
+
+  const periods: { periodStart: string; periodEnd: string }[] = [];
+  let currentRunStart: string | null = null;
+  let prevDate: Date | null = null;
+
+  for (const dStr of dates) {
+    const d = new Date(`${dStr}T00:00:00Z`);
+    if (!(prevDate && d.getTime() - prevDate.getTime() === 86400000)) {
+      if (currentRunStart && prevDate) {
+        periods.push({ periodStart: currentRunStart, periodEnd: prevDate.toISOString().slice(0, 10) });
+      }
+      currentRunStart = dStr;
+    }
+    prevDate = d;
+  }
+  if (currentRunStart && prevDate) {
+    periods.push({ periodStart: currentRunStart, periodEnd: prevDate.toISOString().slice(0, 10) });
+  }
+
+  let longestStreak = 0;
+  for (const p of periods) {
+    const len = (new Date(`${p.periodEnd}T00:00:00Z`).getTime() - new Date(`${p.periodStart}T00:00:00Z`).getTime()) / 86400000 + 1;
+    if (len > longestStreak) longestStreak = len;
+  }
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+  let currentStreak = 0;
+  const lastPeriod = periods[periods.length - 1];
+  if (lastPeriod && (lastPeriod.periodEnd === todayStr || lastPeriod.periodEnd === yesterdayStr)) {
+    currentStreak = (new Date(`${lastPeriod.periodEnd}T00:00:00Z`).getTime() - new Date(`${lastPeriod.periodStart}T00:00:00Z`).getTime()) / 86400000 + 1;
+  }
+
+  res.json({ currentStreak, longestStreak, total: dates.length, periods });
 });
 
 router.patch("/auth/profile", requireAuth, async (req, res): Promise<void> => {

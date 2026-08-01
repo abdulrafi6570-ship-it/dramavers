@@ -5,6 +5,7 @@ export * from "./drama_actors";
 export * from "./videos";
 export * from "./favorites";
 export * from "./drama_favorites";
+export * from "./user_login_days";
 export * from "./bookmarks";
 export * from "./downloads";
 export * from "./comments";
