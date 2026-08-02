@@ -5,6 +5,7 @@ import {
 import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploader } from "@/components/FileUploader";
+import { generateThumbnailFromVideoUrl } from "@/lib/generate-video-thumbnail";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star, Sparkles, Copyright } from "lucide-react";
@@ -440,7 +441,24 @@ export default function AdminVideos() {
             </div>
             <div className="col-span-2">
               <label className="text-xs text-white/50 mb-1 block">Upload Video</label>
-              <FileUploader accept="video/*" label="Pilih Video" currentUrl={form.videoUrl ?? ""} previewType="video" onUpload={(url) => setForm({ ...form, videoUrl: url })} />
+              <FileUploader
+                accept="video/*"
+                label="Pilih Video"
+                currentUrl={form.videoUrl ?? ""}
+                previewType="video"
+                onUpload={(url) => {
+                  setForm((prev) => ({ ...prev, videoUrl: url }));
+                  // Auto-generate a thumbnail from the video if one hasn't
+                  // been picked already — admin can still override manually.
+                  if (url) {
+                    generateThumbnailFromVideoUrl(url)
+                      .then((thumbUrl) => {
+                        setForm((prev) => (prev.thumbnailUrl ? prev : { ...prev, thumbnailUrl: thumbUrl }));
+                      })
+                      .catch((err) => console.error("Auto-thumbnail failed:", err));
+                  }
+                }}
+              />
             </div>
             <div className="col-span-2">
               <label className="text-xs text-white/50 mb-1 block">Upload Thumbnail</label>
