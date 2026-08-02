@@ -8,7 +8,8 @@ import { FileUploader } from "@/components/FileUploader";
 import { generateThumbnailFromVideoUrl } from "@/lib/generate-video-thumbnail";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star, Sparkles, Copyright } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, ChevronLeft, Film, Star, Sparkles, Copyright, Upload } from "lucide-react";
+import { BulkVideoUploadDialog } from "@/components/admin/BulkVideoUploadDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -52,6 +53,7 @@ export default function AdminVideos() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -185,10 +187,19 @@ export default function AdminVideos() {
         <div className="flex items-center gap-3 mb-6">
           <Link href="/admin" className="text-white/40 hover:text-white"><ChevronLeft className="h-5 w-5" /></Link>
           <h1 className="text-2xl font-bold text-white flex-1">Video Management</h1>
+          <Button variant="outline" onClick={() => setShowBulkUpload(true)} className="border-white/20 text-white hover:bg-white/10">
+            <Upload className="h-4 w-4 mr-2" />Bulk Upload
+          </Button>
           <Button onClick={openAdd} className="bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />Add
           </Button>
         </div>
+
+        <BulkVideoUploadDialog
+          open={showBulkUpload}
+          onOpenChange={setShowBulkUpload}
+          onDone={() => qc.invalidateQueries()}
+        />
 
         <div className="flex flex-wrap gap-3 mb-4">
           <Input
