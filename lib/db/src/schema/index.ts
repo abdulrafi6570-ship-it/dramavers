@@ -6,6 +6,8 @@ export * from "./videos";
 export * from "./favorites";
 export * from "./drama_favorites";
 export * from "./user_login_days";
+export * from "./collections";
+export * from "./collection_videos";
 export * from "./bookmarks";
 export * from "./downloads";
 export * from "./comments";

@@ -297,6 +297,7 @@ export default function Profile() {
             { href: "/bookmarks", label: "Bookmarks", desc: "Saved for later" },
             { href: "/history", label: "History", desc: "Previously downloaded" },
             { href: "/watch-history", label: "Riwayat Tontonan", desc: "Video yang pernah kamu tonton" },
+            { href: "/collections", label: "Koleksi", desc: "Folder video buatanmu sendiri" },
           ].map((item) => (
             <Link
               key={item.href}

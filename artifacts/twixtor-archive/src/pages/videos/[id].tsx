@@ -5,7 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDownloadManager } from "@/contexts/DownloadContext";
 import { Link, useParams, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X, Pencil, Copyright } from "lucide-react";
+import { ArrowLeft, Heart, Bookmark, Download, Copy, Play, MessageCircle, Trash2, ExternalLink, CornerDownRight, X, Pencil, Copyright, FolderPlus } from "lucide-react";
+import { AddToCollectionDialog } from "@/components/AddToCollectionDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ export default function VideoDetail() {
   const qc = useQueryClient();
   const [, setLocation] = useLocation();
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showCollectionDialog, setShowCollectionDialog] = useState(false);
   const [downloadStep, setDownloadStep] = useState<"tiktok" | "code">("tiktok");
   const [codeInput, setCodeInput] = useState("");
   const [commentText, setCommentText] = useState("");
@@ -308,7 +310,16 @@ export default function VideoDetail() {
                 >
                   <Bookmark className="h-4 w-4" fill={video.isBookmarked ? "currentColor" : "none"} />
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCollectionDialog(true)}
+                  className="border-white/15 text-white hover:bg-white/8"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                </Button>
               </div>
+
+              <AddToCollectionDialog videoId={id} open={showCollectionDialog} onOpenChange={setShowCollectionDialog} />
 
               {/* TikTok CTA below download */}
               <div className="glass-panel rounded-xl p-3 border border-white/8 flex items-center gap-3">
