@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey } from "@workspace/api-client-react";
 import { StreakCard } from "@/components/ui/streak-card";
+import { BadgeGrid } from "@/components/BadgeGrid";
 
 const API_BASE = "https://dramavers-production.up.railway.app";
 
@@ -25,6 +26,15 @@ async function fetchStreak(): Promise<StreakData> {
     headers: { authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Gagal memuat streak");
+  return res.json();
+}
+
+async function fetchBadges() {
+  const token = localStorage.getItem("twixtor_token");
+  const res = await fetch(`${API_BASE}/api/auth/badges`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Gagal memuat pencapaian");
   return res.json();
 }
 
@@ -136,6 +146,12 @@ export default function Profile() {
     enabled: !!u,
   });
 
+  const { data: badgesData } = useQuery({
+    queryKey: ["badges"],
+    queryFn: fetchBadges,
+    enabled: !!u,
+  });
+
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
       <Navbar />
@@ -143,7 +159,7 @@ export default function Profile() {
 
         {/* Login streak */}
         {streakData && (
-          <div className="mb-10">
+          <div className="mb-6">
             <StreakCard
               streak={streakData.periods}
               currentStreak={streakData.currentStreak}
@@ -151,6 +167,13 @@ export default function Profile() {
               total={streakData.total}
               title="Login Streak"
             />
+          </div>
+        )}
+
+        {/* Achievement badges */}
+        {badgesData?.badges && (
+          <div className="mb-10">
+            <BadgeGrid badges={badgesData.badges} />
           </div>
         )}
 

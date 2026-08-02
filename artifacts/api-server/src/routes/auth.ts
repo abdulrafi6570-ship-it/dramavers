@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import multer from "multer";
 import { randomUUID } from "crypto";
-import { db, usersTable, accessCodesTable, userFollowsTable, userLoginDaysTable } from "@workspace/db";
+import { db, usersTable, accessCodesTable, userFollowsTable, userLoginDaysTable, videoViewsTable, dramaFavoritesTable, collectionsTable } from "@workspace/db";
 import { eq, and, or, gt, count } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 import { RegisterBody, LoginBody, VerifyAccessCodeBody } from "@workspace/api-zod";
@@ -211,6 +211,48 @@ router.get("/auth/streak", requireAuth, async (req, res): Promise<void> => {
   }
 
   res.json({ currentStreak, longestStreak, total: dates.length, periods });
+});
+
+router.get("/auth/badges", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.user!.id;
+
+  const [loginRows, [{ watchCount }], [{ favoriteCount }], [{ collectionCount }]] = await Promise.all([
+    db.select({ loginDate: userLoginDaysTable.loginDate }).from(userLoginDaysTable).where(eq(userLoginDaysTable.userId, userId)).orderBy(userLoginDaysTable.loginDate),
+    db.select({ watchCount: count() }).from(videoViewsTable).where(eq(videoViewsTable.userId, userId)),
+    db.select({ favoriteCount: count() }).from(dramaFavoritesTable).where(eq(dramaFavoritesTable.userId, userId)),
+    db.select({ collectionCount: count() }).from(collectionsTable).where(eq(collectionsTable.userId, userId)),
+  ]);
+
+  const dates = loginRows.map((r) => r.loginDate);
+  let longestStreak = 0;
+  let runStart: Date | null = null;
+  let prevDate: Date | null = null;
+  for (const dStr of dates) {
+    const d = new Date(`${dStr}T00:00:00Z`);
+    if (!(prevDate && d.getTime() - prevDate.getTime() === 86400000)) {
+      runStart = d;
+    }
+    const runLen = runStart ? (d.getTime() - runStart.getTime()) / 86400000 + 1 : 1;
+    if (runLen > longestStreak) longestStreak = runLen;
+    prevDate = d;
+  }
+
+  const wc = Number(watchCount);
+  const fc = Number(favoriteCount);
+  const cc = Number(collectionCount);
+
+  const badges = [
+    { id: "streak_3", label: "3 Hari Beruntun", icon: "flame", achieved: longestStreak >= 3 },
+    { id: "streak_7", label: "7 Hari Beruntun", icon: "flame", achieved: longestStreak >= 7 },
+    { id: "streak_30", label: "30 Hari Beruntun", icon: "flame", achieved: longestStreak >= 30 },
+    { id: "watch_10", label: "Nonton 10 Video", icon: "play", achieved: wc >= 10 },
+    { id: "watch_50", label: "Nonton 50 Video", icon: "play", achieved: wc >= 50 },
+    { id: "watch_100", label: "Nonton 100 Video", icon: "play", achieved: wc >= 100 },
+    { id: "favorite_5", label: "5 Drama Favorit", icon: "heart", achieved: fc >= 5 },
+    { id: "collector", label: "Bikin Koleksi Pertama", icon: "folder", achieved: cc >= 1 },
+  ];
+
+  res.json({ badges });
 });
 
 router.patch("/auth/profile", requireAuth, async (req, res): Promise<void> => {
