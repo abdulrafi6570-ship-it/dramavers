@@ -281,8 +281,11 @@ export default function AdminVideos() {
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => {
-                          const isDrama = !!video.dramaId;
-                          setUploadMode(isDrama ? "drama" : "solo");
+                          // Only treat as "solo" when there's an actor but genuinely no
+                          // drama — a video with neither set (e.g. fresh from bulk upload)
+                          // should default to "drama" mode so admin can freely pick either.
+                          const isSolo = !video.dramaId && !!video.actorId;
+                          setUploadMode(isSolo ? "solo" : "drama");
                           setForm({
                             title: video.title,
                             type: video.type as any,

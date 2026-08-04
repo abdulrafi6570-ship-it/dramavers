@@ -1,8 +1,14 @@
 const API_BASE = "https://dramavers-production.up.railway.app";
 
 export async function generateThumbnailFromVideoUrl(videoUrl: string): Promise<string> {
-  const blob = await captureFrameAsBlob(videoUrl);
-  return uploadThumbnailBlob(blob);
+  try {
+    const blob = await captureFrameAsBlob(videoUrl);
+    return await uploadThumbnailBlob(blob);
+  } catch (firstErr) {
+    await new Promise((r) => setTimeout(r, 1500));
+    const blob = await captureFrameAsBlob(videoUrl);
+    return await uploadThumbnailBlob(blob);
+  }
 }
 
 function captureFrameAsBlob(videoUrl: string): Promise<Blob> {
@@ -12,53 +18,69 @@ function captureFrameAsBlob(videoUrl: string): Promise<Blob> {
     video.muted = true;
     video.playsInline = true;
     video.preload = "auto";
-    video.src = videoUrl;
+
+    let settled = false;
+    let seekAttempted = false;
 
     const cleanup = () => {
-      video.src = "";
+      video.removeAttribute("src");
+      video.load();
       video.remove();
     };
 
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error("Timeout loading video for thumbnail capture"));
-    }, 15000);
-
-    video.addEventListener("loadedmetadata", () => {
-      const seekTo = Math.min(1, (video.duration || 2) * 0.1);
-      video.currentTime = seekTo;
-    });
-
-    video.addEventListener("seeked", () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas context unavailable");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-          (blob) => {
-            clearTimeout(timeout);
-            cleanup();
-            if (blob) resolve(blob);
-            else reject(new Error("Failed to encode captured frame"));
-          },
-          "image/jpeg",
-          0.85
-        );
-      } catch (err) {
-        clearTimeout(timeout);
-        cleanup();
-        reject(err);
-      }
-    });
-
-    video.addEventListener("error", () => {
+    const finish = (result: { ok: true; blob: Blob } | { ok: false; err: Error }) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timeout);
       cleanup();
-      reject(new Error("Failed to load video for thumbnail capture"));
+      if (result.ok) resolve(result.blob);
+      else reject(result.err);
+    };
+
+    const timeout = setTimeout(() => {
+      finish({ ok: false, err: new Error("Timeout loading video for thumbnail capture") });
+    }, 30000);
+
+    const attemptSeek = () => {
+      if (seekAttempted) return;
+      if (!video.duration || Number.isNaN(video.duration) || !Number.isFinite(video.duration)) return;
+      seekAttempted = true;
+      const seekTo = Math.min(1, video.duration * 0.1);
+      video.currentTime = seekTo;
+    };
+
+    const captureFrame = () => {
+      requestAnimationFrame(() => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 360;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Canvas context unavailable");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) finish({ ok: true, blob });
+              else finish({ ok: false, err: new Error("Failed to encode captured frame") });
+            },
+            "image/jpeg",
+            0.85
+          );
+        } catch (err) {
+          finish({ ok: false, err: err instanceof Error ? err : new Error(String(err)) });
+        }
+      });
+    };
+
+    video.addEventListener("loadedmetadata", attemptSeek);
+    video.addEventListener("loadeddata", attemptSeek);
+    video.addEventListener("seeked", captureFrame);
+    video.addEventListener("error", () => {
+      finish({ ok: false, err: new Error("Failed to load video for thumbnail capture") });
     });
+
+    video.src = videoUrl;
+    video.load();
   });
 }
 
