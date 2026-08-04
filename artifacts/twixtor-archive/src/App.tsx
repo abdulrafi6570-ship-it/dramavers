@@ -25,6 +25,7 @@ import Bookmarks from "@/pages/bookmarks/index";
 import History from "@/pages/history/index";
 import WatchHistory from "@/pages/watch-history/index";
 import Collections from "@/pages/collections/index";
+import AdminAnalytics from "@/pages/admin/analytics";
 import CollectionDetail from "@/pages/collections/[id]";
 import Requests from "@/pages/requests/index";
 import Login from "@/pages/auth/login";
@@ -138,6 +139,7 @@ function Router() {
       <Route path="/history" component={History} />
       <Route path="/watch-history" component={WatchHistory} />
       <Route path="/collections" component={Collections} />
+      <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/collections/:id" component={CollectionDetail} />
       <Route path="/requests" component={Requests} />
       <Route path="/chat" component={GlobalChat} />

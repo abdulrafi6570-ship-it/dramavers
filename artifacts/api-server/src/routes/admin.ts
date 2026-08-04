@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db, usersTable, videosTable, dramasTable, actorsTable, downloadsTable, favoritesTable, accessCodesTable } from "@workspace/db";
-import { eq, and, desc, count, gt } from "drizzle-orm";
+import { db, usersTable, videosTable, dramasTable, actorsTable, downloadsTable, favoritesTable, accessCodesTable, videoViewsTable, dramaFavoritesTable } from "@workspace/db";
+import { eq, and, desc, count, gt, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/auth";
 import {
   ListUsersQueryParams, CreateAccessCodeBody, DeleteAccessCodeParams, BulkUpdateVideosBody,
@@ -43,6 +43,45 @@ router.get("/admin/stats", requireAuth, requireAdmin, async (_req, res): Promise
     })),
     storageVideoCount: Number(totalVideos),
     storageUsedBytes: null,
+  });
+});
+
+router.get("/admin/analytics", requireAuth, requireAdmin, async (_req, res): Promise<void> => {
+  const [viewsPerDayRows, viewsByHourRows, topVideos, topDramasRows] = await Promise.all([
+    db.select({
+      day: sql<string>`to_char(${videoViewsTable.viewedAt}, 'YYYY-MM-DD')`,
+      cnt: count(),
+    }).from(videoViewsTable)
+      .where(sql`${videoViewsTable.viewedAt} > now() - interval '30 days'`)
+      .groupBy(sql`to_char(${videoViewsTable.viewedAt}, 'YYYY-MM-DD')`)
+      .orderBy(sql`to_char(${videoViewsTable.viewedAt}, 'YYYY-MM-DD')`),
+
+    db.select({
+      hour: sql<number>`extract(hour from ${videoViewsTable.viewedAt})::int`,
+      cnt: count(),
+    }).from(videoViewsTable)
+      .groupBy(sql`extract(hour from ${videoViewsTable.viewedAt})`)
+      .orderBy(sql`extract(hour from ${videoViewsTable.viewedAt})`),
+
+    db.select({ id: videosTable.id, title: videosTable.title, viewCount: videosTable.viewCount, thumbnailUrl: videosTable.thumbnailUrl })
+      .from(videosTable)
+      .orderBy(desc(videosTable.viewCount))
+      .limit(10),
+
+    db.select({
+      id: dramasTable.id, name: dramasTable.name, posterUrl: dramasTable.posterUrl, cnt: count(),
+    }).from(dramaFavoritesTable)
+      .innerJoin(dramasTable, eq(dramaFavoritesTable.dramaId, dramasTable.id))
+      .groupBy(dramasTable.id, dramasTable.name, dramasTable.posterUrl)
+      .orderBy(desc(count()))
+      .limit(10),
+  ]);
+
+  res.json({
+    viewsPerDay: viewsPerDayRows.map((r) => ({ date: r.day, count: Number(r.cnt) })),
+    viewsByHour: viewsByHourRows.map((r) => ({ hour: Number(r.hour), count: Number(r.cnt) })),
+    topVideos: topVideos.map((v) => ({ id: v.id, title: v.title, viewCount: v.viewCount ?? 0, thumbnailUrl: v.thumbnailUrl ?? null })),
+    topDramas: topDramasRows.map((r) => ({ id: r.id, name: r.name, posterUrl: r.posterUrl ?? null, favoriteCount: Number(r.cnt) })),
   });
 });
 

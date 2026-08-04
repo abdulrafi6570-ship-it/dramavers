@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Users, Film, Star, Download, Play, Shield, Megaphone, Settings2, Key, MessageCircle } from "lucide-react";
+import { Users, Film, Star, Download, Play, Shield, Megaphone, Settings2, Key, MessageCircle, BarChart3 } from "lucide-react";
 import AnimatedList from "@/components/AnimatedList";
 
 export default function AdminDashboard() {
@@ -28,6 +28,7 @@ export default function AdminDashboard() {
   ];
 
   const mgmtItems = [
+    { label: "Analytics",    icon: <BarChart3 size={16} />, action: () => setLocation("/admin/analytics") },
     { label: "Videos",       icon: <Film size={16} />,     action: () => setLocation("/admin/videos") },
     { label: "Dramas",       icon: <Star size={16} />,     action: () => setLocation("/admin/dramas") },
     { label: "Actors",       icon: <Users size={16} />,    action: () => setLocation("/admin/actors") },
