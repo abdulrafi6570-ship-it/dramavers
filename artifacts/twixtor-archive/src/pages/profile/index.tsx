@@ -321,6 +321,7 @@ export default function Profile() {
             { href: "/history", label: "History", desc: "Previously downloaded" },
             { href: "/watch-history", label: "Riwayat Tontonan", desc: "Video yang pernah kamu tonton" },
             { href: "/collections", label: "Koleksi", desc: "Folder video buatanmu sendiri" },
+            { href: "/leaderboard", label: "Leaderboard", desc: "Siapa paling rajin login" },
           ].map((item) => (
             <Link
               key={item.href}
