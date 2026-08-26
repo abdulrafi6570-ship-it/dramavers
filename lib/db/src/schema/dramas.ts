@@ -3,6 +3,15 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const categoryEnum = pgEnum("category", [
+  "kdrama",
+  "cdrama",
+  "indo",
+  "film_barat",
+  "anime",
+  "series",
+]);
+
+export const mainCategoryEnum = pgEnum("main_category", [
   "ASIA",
   "DONGHUA",
   "ANIME",
@@ -26,10 +35,21 @@ export const dramasTable = pgTable("dramas", {
   name: text("name").notNull(),
   posterUrl: text("poster_url"),
   description: text("description"),
-  category: categoryEnum("category").notNull().default("ASIA"),
+
+  // Legacy category — jangan hapus dulu
+  category: categoryEnum("category").notNull().default("kdrama"),
+
+  // Kategori baru
+  parentCategory: mainCategoryEnum("parent_category")
+    .notNull()
+    .default("ASIA"),
+
   subcategory: subcategoryEnum("subcategory"),
+
   genre: text("genre"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const insertDramaSchema = createInsertSchema(dramasTable).omit({
