@@ -36,7 +36,7 @@ export const dramasTable = pgTable("dramas", {
   posterUrl: text("poster_url"),
   description: text("description"),
 
-  // Legacy category — jangan hapus dulu
+  // Kategori lama, tetap dipertahankan agar kode lama tidak rusak
   category: categoryEnum("category").notNull().default("kdrama"),
 
   // Kategori baru
@@ -47,7 +47,10 @@ export const dramasTable = pgTable("dramas", {
   subcategory: subcategoryEnum("subcategory"),
 
   genre: text("genre"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+  })
     .notNull()
     .defaultNow(),
 });
