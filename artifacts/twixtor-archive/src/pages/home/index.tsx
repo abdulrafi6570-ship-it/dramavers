@@ -12,22 +12,48 @@ import Carousel from "@/components/Carousel";
 import BorderGlow from "@/components/BorderGlow";
 
 const CATEGORIES = [
-  { key: "ASIA", label: "ASIA", color: "#a855f7", hasChildren: true },
-  { key: "DONGHUA", label: "DONGHUA", color: "#ec4899", hasChildren: false },
-  { key: "ANIME", label: "ANIME", color: "#3b82f6", hasChildren: false },
-  { key: "WESTERN", label: "WESTERN", color: "#f59e0b", hasChildren: false },
-  { key: "ANIMASI", label: "ANIMASI", color: "#22c55e", hasChildren: false },
-  { key: "MANHWA", label: "MANHWA", color: "#6366f1", hasChildren: false },
-  { key: "K-POP", label: "K-POP", color: "#ef4444", hasChildren: false },
-];
-
-const ASIA_SUBCATEGORIES = [
-  { key: "K-DRAMA", label: "K-DRAMA" },
-  { key: "C-DRAMA", label: "C-DRAMA" },
-  { key: "J-DRAMA", label: "J-DRAMA" },
-  { key: "T-DRAMA", label: "T-DRAMA" },
-  { key: "TAIWAN-DRAMA", label: "TAIWAN DRAMA" },
-  { key: "PHILIPPINES-DRAMA", label: "PHILIPPINES DRAMA" },
+  {
+    key: "ASIA",
+    label: "ASIA",
+    color: "#a855f7",
+    hasChildren: true,
+  },
+  {
+    key: "DONGHUA",
+    label: "DONGHUA",
+    color: "#ec4899",
+    hasChildren: false,
+  },
+  {
+    key: "ANIME",
+    label: "ANIME",
+    color: "#3b82f6",
+    hasChildren: false,
+  },
+  {
+    key: "WESTERN",
+    label: "WESTERN",
+    color: "#f59e0b",
+    hasChildren: false,
+  },
+  {
+    key: "ANIMASI",
+    label: "ANIMASI",
+    color: "#22c55e",
+    hasChildren: false,
+  },
+  {
+    key: "MANHWA",
+    label: "MANHWA",
+    color: "#6366f1",
+    hasChildren: false,
+  },
+  {
+    key: "K-POP",
+    label: "K-POP",
+    color: "#ef4444",
+    hasChildren: false,
+  },
 ];
 
 export default function Home() {
@@ -84,6 +110,7 @@ export default function Home() {
                 <div className="px-3 py-2.5 flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
                     <Film className="h-3 w-3 text-white/30 flex-shrink-0" />
+
                     <Counter
                       value={stats.totalDramas}
                       places={[100, 10, 1]}
@@ -94,6 +121,7 @@ export default function Home() {
                       fontWeight={800}
                       gradientFrom="transparent"
                     />
+
                     <span className="text-[10px] text-white/25 uppercase tracking-wider">
                       Dramas
                     </span>
@@ -101,6 +129,7 @@ export default function Home() {
 
                   <div className="flex items-center gap-2">
                     <Users className="h-3 w-3 text-white/30 flex-shrink-0" />
+
                     <Counter
                       value={stats.totalActors}
                       places={[100, 10, 1]}
@@ -111,6 +140,7 @@ export default function Home() {
                       fontWeight={800}
                       gradientFrom="transparent"
                     />
+
                     <span className="text-[10px] text-white/25 uppercase tracking-wider">
                       Aktor
                     </span>
@@ -118,6 +148,7 @@ export default function Home() {
 
                   <div className="flex items-center gap-2">
                     <Play className="h-3 w-3 text-white/30 flex-shrink-0" />
+
                     <Counter
                       value={stats.totalVideos}
                       places={[100, 10, 1]}
@@ -128,6 +159,7 @@ export default function Home() {
                       fontWeight={800}
                       gradientFrom="transparent"
                     />
+
                     <span className="text-[10px] text-white/25 uppercase tracking-wider">
                       Clips
                     </span>
@@ -139,7 +171,11 @@ export default function Home() {
             {featuredDramas.length >= 2 && (
               <div
                 className="flex-shrink-0"
-                style={{ width: 112, height: 158, position: "relative" }}
+                style={{
+                  width: 112,
+                  height: 158,
+                  position: "relative",
+                }}
               >
                 <CardSwap
                   width={100}
@@ -152,7 +188,10 @@ export default function Home() {
                   easing="elastic"
                   onCardClick={(i) => {
                     const drama = featuredDramas[i];
-                    if (drama) setLocation(`/dramas/${drama.id}`);
+
+                    if (drama) {
+                      setLocation(`/dramas/${drama.id}`);
+                    }
                   }}
                 >
                   {featuredDramas.slice(0, 4).map((drama: any) => (
@@ -187,6 +226,7 @@ export default function Home() {
                               color: "rgba(255,255,255,0.2)",
                             }}
                           />
+
                           <span
                             style={{
                               fontSize: 10,
@@ -252,6 +292,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Music className="h-3.5 w-3.5 text-white/40" />
+
                 <h2 className="font-heading text-base font-semibold text-white">
                   Solo Artists
                 </h2>
@@ -303,12 +344,12 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-4 md:gap-6">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-6">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.key}
                 onClick={() => {
-                  if (cat.hasChildren) {
+                  if (cat.key === "ASIA") {
                     setLocation("/dramas?category=ASIA");
                     return;
                   }
@@ -321,12 +362,22 @@ export default function Home() {
                   className="flex items-center justify-center"
                   style={{ height: 90 }}
                 >
-                  <Folder color={cat.color} size={0.95} />
+                  <Folder
+                    color={cat.color}
+                    size={52}
+                    strokeWidth={1.8}
+                  />
                 </div>
 
                 <span className="font-bouncy text-[11px] text-white/60 group-hover:text-white transition-colors text-center">
                   {cat.label}
                 </span>
+
+                {cat.hasChildren && (
+                  <span className="text-[9px] text-white/25">
+                    6 subkategori
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -398,7 +449,9 @@ export default function Home() {
               <Carousel
                 items={videoItems}
                 baseWidth={
-                  typeof window !== "undefined" ? window.innerWidth : 320
+                  typeof window !== "undefined"
+                    ? window.innerWidth
+                    : 320
                 }
                 autoplay
                 autoplayDelay={3500}
@@ -428,7 +481,10 @@ export default function Home() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {data!.popularVideos!.map((video) => (
-                <VideoCard key={video.id} video={video as any} />
+                <VideoCard
+                  key={video.id}
+                  video={video as any}
+                />
               ))}
             </div>
           </section>
