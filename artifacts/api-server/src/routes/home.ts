@@ -53,7 +53,8 @@ function formatDrama(d: any) {
   return {
     id: d.id,
     name: d.name,
-    category: d.category ?? "kdrama",
+    category: d.parentCategory ?? "ASIA",
+    subcategory: d.subcategory ?? null,
     genre: d.genre ?? null,
     description: d.description ?? null,
     posterUrl: fixMediaUrl(d.posterUrl),
