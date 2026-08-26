@@ -1,5 +1,11 @@
 import { Router, type IRouter } from "express";
-import { db, videosTable, dramasTable, actorsTable, usersTable } from "@workspace/db";
+import {
+  db,
+  videosTable,
+  dramasTable,
+  actorsTable,
+  usersTable,
+} from "@workspace/db";
 import { eq, ilike, desc, count, gt, and } from "drizzle-orm";
 
 const router: IRouter = Router();
@@ -7,7 +13,8 @@ const router: IRouter = Router();
 function fixMediaUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
-  const oldRailway = "https://dramavers-production.up.railway.app";
+  const oldRailway =
+    "https://dramavers-production.up.railway.app";
 
   if (url.startsWith(oldRailway)) {
     return url.replace(oldRailway, "");
@@ -53,8 +60,11 @@ function formatDrama(d: any) {
   return {
     id: d.id,
     name: d.name,
+
+    // Kategori baru
     category: d.parentCategory ?? "ASIA",
     subcategory: d.subcategory ?? null,
+
     genre: d.genre ?? null,
     description: d.description ?? null,
     posterUrl: fixMediaUrl(d.posterUrl),
@@ -94,8 +104,14 @@ router.get("/home", async (_req, res): Promise<void> => {
         actorName: actorsTable.name,
       })
       .from(videosTable)
-      .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
-      .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
+      .leftJoin(
+        dramasTable,
+        eq(videosTable.dramaId, dramasTable.id),
+      )
+      .leftJoin(
+        actorsTable,
+        eq(videosTable.actorId, actorsTable.id),
+      )
       .where(eq(videosTable.status, "published"))
       .orderBy(desc(videosTable.createdAt))
       .limit(12),
@@ -107,8 +123,14 @@ router.get("/home", async (_req, res): Promise<void> => {
         actorName: actorsTable.name,
       })
       .from(videosTable)
-      .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
-      .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
+      .leftJoin(
+        dramasTable,
+        eq(videosTable.dramaId, dramasTable.id),
+      )
+      .leftJoin(
+        actorsTable,
+        eq(videosTable.actorId, actorsTable.id),
+      )
       .where(
         and(
           eq(videosTable.status, "published"),
@@ -123,8 +145,14 @@ router.get("/home", async (_req, res): Promise<void> => {
       .limit(12),
 
     Promise.all([
-      db.select({ total: count() }).from(dramasTable),
-      db.select({ total: count() }).from(actorsTable),
+      db
+        .select({ total: count() })
+        .from(dramasTable),
+
+      db
+        .select({ total: count() })
+        .from(actorsTable),
+
       db
         .select({ total: count() })
         .from(videosTable)
@@ -205,8 +233,14 @@ router.get("/search", async (req, res): Promise<void> => {
         actorName: actorsTable.name,
       })
       .from(videosTable)
-      .leftJoin(dramasTable, eq(videosTable.dramaId, dramasTable.id))
-      .leftJoin(actorsTable, eq(videosTable.actorId, actorsTable.id))
+      .leftJoin(
+        dramasTable,
+        eq(videosTable.dramaId, dramasTable.id),
+      )
+      .leftJoin(
+        actorsTable,
+        eq(videosTable.actorId, actorsTable.id),
+      )
       .where(
         and(
           eq(videosTable.status, "published"),
