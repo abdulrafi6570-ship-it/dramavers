@@ -12,13 +12,22 @@ import Carousel from "@/components/Carousel";
 import BorderGlow from "@/components/BorderGlow";
 
 const CATEGORIES = [
-  { key: "ASIA", label: "ASIA", color: "#a855f7" },
+  { key: "ASIA", label: "ASIA", color: "#a855f7", hasChildren: true },
   { key: "DONGHUA", label: "DONGHUA", color: "#ec4899" },
   { key: "ANIME", label: "ANIME", color: "#3b82f6" },
   { key: "WESTERN", label: "WESTERN", color: "#f59e0b" },
   { key: "ANIMASI", label: "ANIMASI", color: "#22c55e" },
   { key: "MANHWA", label: "MANHWA", color: "#6366f1" },
   { key: "K-POP", label: "K-POP", color: "#ef4444" },
+];
+
+const ASIA_SUBCATEGORIES = [
+  { key: "K-DRAMA", label: "K-DRAMA" },
+  { key: "C-DRAMA", label: "C-DRAMA" },
+  { key: "J-DRAMA", label: "J-DRAMA" },
+  { key: "T-DRAMA", label: "T-DRAMA" },
+  { key: "TAIWAN-DRAMA", label: "TAIWAN DRAMA" },
+  { key: "PHILIPPINES-DRAMA", label: "PHILIPPINES DRAMA" },
 ];
 
 export default function Home() {
