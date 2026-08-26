@@ -10,6 +10,10 @@
       "destination": "https://quart-shallow-frog.abasthan.app/api/:path*"
     },
     {
+      "source": "/r2proxy/:path*",
+      "destination": "https://quart-shallow-frog.abasthan.app/r2proxy/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
