@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://dramavers-production.up.railway.app/api/:path*"
+      "destination": "https://quart-shallow-frog.abasthan.app/api/:path*"
     },
     {
       "source": "/(.*)",
@@ -18,7 +18,10 @@
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ],
