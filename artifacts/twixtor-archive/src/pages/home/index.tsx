@@ -10,6 +10,7 @@ import Counter from "@/components/Counter";
 import CardSwap, { Card } from "@/components/CardSwap";
 import Carousel from "@/components/Carousel";
 import BorderGlow from "@/components/BorderGlow";
+import { useEffect, useRef, useState } from "react";
 
 const CATEGORIES = [
   { key: "ASIA", label: "ASIA", color: "#a855f7", hasChildren: true },
@@ -20,6 +21,54 @@ const CATEGORIES = [
   { key: "MANHWA", label: "MANHWA", color: "#6366f1", hasChildren: false },
   { key: "K-POP", label: "K-POP", color: "#ef4444", hasChildren: false },
 ];
+
+// DomeGallery builds dozens of CSS 3D-transformed tiles, and each one
+// becomes its own GPU compositor layer. Mounting two of them immediately
+// on page load is what pegs the GPU (and drags the whole system down with
+// it, not just the browser tab). This hook delays mounting until the
+// section is actually about to scroll into view, so the initial page
+// load never has to pay that cost at all.
+function useInView(rootMargin = "300px") {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    if (inView) return;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [inView, rootMargin]);
+
+  return [ref, inView] as const;
+}
+
+function GalleryPlaceholder({ images }: { images: string[] }) {
+  return (
+    <div className="w-full h-full grid grid-cols-4 gap-1 p-1.5 opacity-50">
+      {images.slice(0, 8).map((src, i) => (
+        <img
+          key={i}
+          src={src}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover rounded-md"
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const { data, isLoading } = useGetHome();
@@ -37,6 +86,9 @@ export default function Home() {
 
   const hasDomeGallery = posterUrls.length >= 3;
   const hasSoloGallery = soloActorPhotos.length >= 3;
+
+  const [domeRef, domeInView] = useInView();
+  const [soloRef, soloInView] = useInView();
 
   const videoItems = (data?.recentVideos ?? [])
     .slice(0, 8)
@@ -204,19 +256,27 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="rounded-2xl overflow-hidden border border-white/8" style={{ height: "340px" }}>
-              <DomeGallery
-                images={posterUrls}
-                segments={16}
-                maxVerticalRotationDeg={11}
-                minRadius={500}
-                overlayBlurColor="#080808"
-                grayscale={false}
-                imageBorderRadius="14px"
-                openedImageBorderRadius="18px"
-                openedImageWidth="220px"
-                openedImageHeight="310px"
-              />
+            <div
+              ref={domeRef}
+              className="rounded-2xl overflow-hidden border border-white/8"
+              style={{ height: "340px" }}
+            >
+              {domeInView ? (
+                <DomeGallery
+                  images={posterUrls}
+                  segments={16}
+                  maxVerticalRotationDeg={11}
+                  minRadius={500}
+                  overlayBlurColor="#080808"
+                  grayscale={false}
+                  imageBorderRadius="14px"
+                  openedImageBorderRadius="18px"
+                  openedImageWidth="220px"
+                  openedImageHeight="310px"
+                />
+              ) : (
+                <GalleryPlaceholder images={posterUrls} />
+              )}
             </div>
 
             <p className="text-center text-[10px] text-white/20 mt-1.5">
@@ -240,19 +300,27 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="rounded-2xl overflow-hidden border border-white/8" style={{ height: "300px" }}>
-              <DomeGallery
-                images={soloActorPhotos}
-                segments={16}
-                maxVerticalRotationDeg={9}
-                minRadius={450}
-                overlayBlurColor="#080808"
-                grayscale={false}
-                imageBorderRadius="50%"
-                openedImageBorderRadius="50%"
-                openedImageWidth="200px"
-                openedImageHeight="200px"
-              />
+            <div
+              ref={soloRef}
+              className="rounded-2xl overflow-hidden border border-white/8"
+              style={{ height: "300px" }}
+            >
+              {soloInView ? (
+                <DomeGallery
+                  images={soloActorPhotos}
+                  segments={16}
+                  maxVerticalRotationDeg={9}
+                  minRadius={450}
+                  overlayBlurColor="#080808"
+                  grayscale={false}
+                  imageBorderRadius="50%"
+                  openedImageBorderRadius="50%"
+                  openedImageWidth="200px"
+                  openedImageHeight="200px"
+                />
+              ) : (
+                <GalleryPlaceholder images={soloActorPhotos} />
+              )}
             </div>
 
             <p className="text-center text-[10px] text-white/20 mt-1.5">
