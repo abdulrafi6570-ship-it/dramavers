@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Check, Loader2, FolderHeart } from "lucide-react";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 interface CollectionSummary {
   id: number;

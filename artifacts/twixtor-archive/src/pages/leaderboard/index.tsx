@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Flame, ArrowLeft } from "lucide-react";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 interface LeaderboardEntry {
   rank: number;

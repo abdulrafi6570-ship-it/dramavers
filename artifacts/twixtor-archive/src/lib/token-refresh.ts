@@ -1,4 +1,4 @@
-const REFRESH_ENDPOINT = "https://dramavers-production.up.railway.app/api/auth/refresh";
+const REFRESH_ENDPOINT = "https://quart-shallow-frog.abasthan.app/api/auth/refresh";
 
 /**
  * Exchanges the stored refresh token for a brand-new access token + refresh

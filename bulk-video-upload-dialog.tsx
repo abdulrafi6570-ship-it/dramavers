@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Loader2, Check, X } from "lucide-react";
 import { generateThumbnailFromVideoUrl } from "@/lib/generate-video-thumbnail";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 type FileStatus = "pending" | "uploading" | "thumbnail" | "creating" | "done" | "error";
 

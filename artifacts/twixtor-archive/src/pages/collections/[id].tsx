@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, FolderHeart, X, Loader2 } from "lucide-react";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 async function fetchCollection(id: number) {
   const token = localStorage.getItem("twixtor_token");

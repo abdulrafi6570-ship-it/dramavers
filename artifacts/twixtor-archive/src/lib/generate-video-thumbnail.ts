@@ -1,4 +1,4 @@
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 export async function generateThumbnailFromVideoUrl(videoUrl: string): Promise<string> {
   try {

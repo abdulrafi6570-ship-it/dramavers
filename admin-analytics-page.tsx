@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, BarChart3 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 interface AnalyticsData {
   viewsPerDay: { date: string; count: number }[];

@@ -11,7 +11,7 @@ import { getGetMeQueryKey } from "@workspace/api-client-react";
 import { StreakCard } from "@/components/ui/streak-card";
 import { BadgeGrid } from "@/components/BadgeGrid";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 interface StreakData {
   currentStreak: number;

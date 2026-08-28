@@ -47,7 +47,7 @@ export function FileUploader({
     setError("");
     setProgress(0);
 
-    const endpoint = toMp3 ? "https://dramavers-production.up.railway.app/api/uploads/mp3" : "https://dramavers-production.up.railway.app/api/uploads";
+    const endpoint = toMp3 ? "https://quart-shallow-frog.abasthan.app/api/uploads/mp3" : "https://quart-shallow-frog.abasthan.app/api/uploads";
     const formData = new FormData();
     formData.append("file", file);
 

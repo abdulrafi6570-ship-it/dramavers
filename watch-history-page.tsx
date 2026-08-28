@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { History as HistoryIcon } from "lucide-react";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 async function fetchWatchHistory() {
   const token = localStorage.getItem("twixtor_token");

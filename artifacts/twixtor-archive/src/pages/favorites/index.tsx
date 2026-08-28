@@ -7,7 +7,7 @@ import { Heart, Download, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import FavoritesGallery3D from "@/components/favorites-gallery-3d";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 interface FavoriteDrama {
   id: number;

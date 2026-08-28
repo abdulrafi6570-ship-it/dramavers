@@ -6,7 +6,7 @@ import { ArrowLeft, Heart, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-const API_BASE = "https://dramavers-production.up.railway.app";
+const API_BASE = "https://quart-shallow-frog.abasthan.app";
 
 async function toggleDramaFavorite(dramaId: number, isFavorited: boolean) {
   const token = localStorage.getItem("twixtor_token");
