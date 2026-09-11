@@ -7,11 +7,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://quart-shallow-frog.abasthan.app/api/:path*"
+      "destination": "https://dramavers-api-server.vercel.app/api/:path*"
     },
     {
       "source": "/r2proxy/:path*",
-      "destination": "https://quart-shallow-frog.abasthan.app/r2proxy/:path*"
+      "destination": "https://dramavers-api-server.vercel.app/r2proxy/:path*"
     },
     {
       "source": "/(.*)",
@@ -34,3 +34,4 @@
     "BASE_PATH": "/"
   }
 }
+
