@@ -7,11 +7,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://dramavers-production.up.railway.app/api/:path*"
+      "destination": "https://dramavers-api-server.vercel.app/api/:path*"
     },
     {
       "source": "/r2proxy/:path*",
-      "destination": "https://dramavers-production.up.railway.app/r2proxy/:path*"
+      "destination": "https://dramavers-api-server.vercel.app/r2proxy/:path*"
     },
     {
       "source": "/(.*)",
