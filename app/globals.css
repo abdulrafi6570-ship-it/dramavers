@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* === NEOBRUTALISM LIGHT — warna dasar === */
+    --background: 45 38% 95%;        /* cream/paper, bukan putih polos */
+    --foreground: 240 15% 10%;       /* nyaris hitam, tegas buat teks & border */
+
+    --card: 0 0% 100%;               /* kartu putih bersih, kontras sama bg cream */
+    --card-foreground: 240 15% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 15% 10%;
+
+    --primary: 340 100% 58%;         /* pink DramaVers, dipertegas buat light bg */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 255 85% 65%;        /* ungu */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 45 25% 90%;
+    --muted-foreground: 240 10% 40%;
+
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --accent-pink: 340 100% 58%;
+    --accent-purple: 255 85% 65%;
+    --highlight: 48 96% 55%;         /* kuning cerah, aksen ke-3 ala neobrutalism */
+    --highlight-foreground: 240 15% 10%;
+
+    --border: 240 15% 10%;           /* border tebal nyaris hitam, ciri khas neobrutalism */
+    --input: 0 0% 100%;
+    --ring: 340 100% 58%;
+
+    --radius: 0.75rem;               /* tetep rounded, tapi gak terlalu bulat (soft mix) */
+
+    --font-display: 'Arial Black', 'Helvetica Neue', sans-serif;
+
+    /* Dipakai widget folder kategori (3D folder) */
+    --folder-back: hsl(45 25% 90%);
+    --folder-tab: hsl(255 85% 65%);
+    --folder-front: hsl(0 0% 100%);
+    --accent: hsl(340 100% 58%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.pb-safe {
+  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ===== Legacy classes (halaman lama masih pakai ini) — sekarang bergaya neobrutalism ===== */
+.card {
+  @apply bg-card border-[3px] border-border rounded-2xl shadow-neo transition-transform duration-150;
+}
+.card:hover {
+  @apply -translate-x-0.5 -translate-y-0.5 shadow-neo-lg;
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground border-[3px] border-border rounded-xl px-4 py-2.5 font-bold shadow-neo-sm transition-all active:translate-x-0 active:translate-y-0 active:shadow-none;
+}
+.btn-primary:hover {
+  @apply -translate-x-0.5 -translate-y-0.5 shadow-neo;
+}
+
+.input {
+  @apply bg-input border-[3px] border-border rounded-xl px-3.5 py-2.5 text-foreground w-full outline-none focus:ring-2 focus:ring-primary/50 transition;
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+/* =========================================================
+   ADMIN PANEL
+   Neutral UI + Amber accent
+   ========================================================= */
+
+.admin-shell {
+  --admin-bg: #f5f5f2;
+  --admin-card: #ffffff;
+  --admin-border: #deded8;
+  --admin-text: #171717;
+  --admin-muted: #777770;
+  --admin-accent: #f59e0b;
+}
+
+/* Admin jangan pakai efek card neobrutalism global */
+.admin-shell .card {
+  border: 1px solid var(--admin-border);
+  border-radius: 1rem;
+  box-shadow: none;
+}
+
+.admin-shell .card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Scrollbar desktop */
+.admin-shell ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.admin-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-shell ::-webkit-scrollbar-thumb {
+  background: #d1d1ca;
+  border-radius: 999px;
+}
+
+.admin-shell ::-webkit-scrollbar-thumb:hover {
+  background: #aaa9a2;
+}
+
+/* Jangan biarkan horizontal overflow di HP */
+.admin-shell {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* HP kecil */
+@media (max-width: 380px) {
+  .admin-shell main {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Safe area iPhone */
+@supports (padding: max(0px)) {
+  .admin-shell {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Kurangi motion kalau user memilih reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *,
+  .admin-shell *::before,
+  .admin-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   ADMIN PANEL — komponen untuk isi halaman admin
+   (putih + aksen amber, nyambung dengan AdminShell)
+   ========================================================= */
+
+/* Halaman admin lama yang masih pakai .input / .btn-primary
+   otomatis ikut gaya baru */
+.admin-shell .input {
+  background: #ffffff;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  box-shadow: none;
+}
+
+.admin-shell .input:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.admin-shell .btn-primary {
+  background: #171717;
+  color: #ffffff;
+  border: 1px solid #171717;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.admin-shell .btn-primary:hover {
+  background: #292929;
+  transform: none;
+  box-shadow: none;
+}
+
+@layer components {
+  .a-panel {
+    @apply rounded-2xl border border-[#deded8] bg-white;
+  }
+
+  .a-btn {
+    @apply inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50;
+  }
+  .a-btn-dark   { @apply border-[#171717] bg-[#171717] text-white hover:bg-[#292929]; }
+  .a-btn-amber  { @apply border-[#f59e0b] bg-[#f59e0b] text-black hover:bg-[#fbbf24]; }
+  .a-btn-line   { @apply border-[#deded8] bg-white text-[#171717] hover:bg-[#f5f5f2]; }
+  .a-btn-danger { @apply border-[#f1c5c5] bg-white text-red-600 hover:bg-[#fff1f1]; }
+  .a-btn-sm     { @apply h-9 px-3 text-xs; }
+
+  .a-label {
+    @apply mb-1.5 block text-xs font-bold text-[#666660];
+  }
+
+  .a-file {
+    @apply block w-full text-sm text-[#666660] file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#fff4dc] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[#b45309] hover:file:bg-[#ffeabf];
+  }
+
+  .a-chip {
+    @apply inline-flex items-center rounded-full border border-[#deded8] bg-white px-3 py-1.5 text-xs font-semibold text-[#666660] transition hover:border-[#bdbdb5];
+  }
+  .a-chip-on {
+    @apply border-[#f59e0b] bg-[#fff4dc] text-[#b45309];
+  }
+
+  .a-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold;
+  }
+  .a-pill-new   { @apply bg-[#fff4dc] text-[#b45309]; }
+  .a-pill-read  { @apply bg-[#f0f0ec] text-[#666660]; }
+  .a-pill-done  { @apply bg-[#e3f6e8] text-[#15803d]; }
+
+  .a-notice {
+    @apply rounded-xl border px-3.5 py-2.5 text-sm font-medium;
+  }
+  .a-notice-ok   { @apply border-[#bfe5c9] bg-[#e9f8ee] text-[#15803d]; }
+  .a-notice-err  { @apply border-[#f1c5c5] bg-[#fff1f1] text-red-700; }
+  .a-notice-info { @apply border-[#ead8b5] bg-[#fff8e9] text-[#a16207]; }
+}
